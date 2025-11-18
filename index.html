@@ -19,24 +19,23 @@
       justify-content: center;
       padding: 24px;
     }
-    .app-shell {
+    .shell {
       width: 100%;
-      max-width: 1100px;
-      background: linear-gradient(145deg, rgba(15,23,42,0.98), rgba(15,23,42,0.98));
+      max-width: 1160px;
+      background: linear-gradient(140deg, rgba(15,23,42,0.98), rgba(15,23,42,0.98));
       border-radius: 24px;
-      box-shadow:
-        0 30px 80px rgba(0,0,0,0.65),
-        0 0 0 1px rgba(148,163,184,0.15);
-      overflow: hidden;
       border: 1px solid rgba(148,163,184,0.3);
+      box-shadow: 0 40px 90px rgba(0,0,0,0.75);
+      overflow: hidden;
     }
-    .app-header {
-      padding: 20px 28px;
-      border-bottom: 1px solid rgba(51,65,85,0.8);
+
+    .header {
+      padding: 18px 22px;
+      border-bottom: 1px solid rgba(51,65,85,0.9);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: radial-gradient(circle at top left, rgba(56,189,248,0.15), transparent 55%);
+      background: radial-gradient(circle at top left, rgba(59,130,246,0.35), transparent 60%);
     }
     .logo {
       display: flex;
@@ -44,112 +43,127 @@
       gap: 10px;
     }
     .logo-badge {
-      width: 32px;
-      height: 32px;
+      width: 34px;
+      height: 34px;
       border-radius: 999px;
-      background: radial-gradient(circle at 30% 30%, #22d3ee, #0369a1);
+      background: radial-gradient(circle at 25% 20%, #38bdf8, #1d4ed8);
       display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 18px;
       font-weight: 700;
-      font-size: 16px;
       color: white;
-      box-shadow: 0 10px 25px rgba(56,189,248,0.45);
+      box-shadow: 0 12px 30px rgba(37,99,235,0.7);
     }
     .logo-text-title {
-      font-weight: 600;
       font-size: 18px;
+      font-weight: 600;
       letter-spacing: 0.03em;
     }
     .logo-text-sub {
-      font-size: 12px;
+      font-size: 11px;
       color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
     }
+
     .header-right {
-      font-size: 13px;
-      color: #9ca3af;
       text-align: right;
+      font-size: 12px;
     }
-    .badge {
+    .pill {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      padding: 3px 8px;
+      gap: 6px;
+      padding: 4px 10px;
       border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.5);
-      font-size: 11px;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(148,163,184,0.7);
       color: #e5e7eb;
-      background: rgba(15,23,42,0.75);
+      font-size: 11px;
+    }
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34,197,94,0.2);
+    }
+    .user-label {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+    .user-label span {
+      color: #e5e7eb;
+      font-weight: 500;
     }
 
-    .app-body {
-      display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
-      gap: 22px;
-      padding: 22px 24px 20px;
-    }
-    @media (max-width: 880px) {
-      .app-body {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .card {
-      background: radial-gradient(circle at top left, rgba(56,189,248,0.1), rgba(15,23,42,0.9));
-      border-radius: 16px;
-      padding: 18px 18px 16px;
-      border: 1px solid rgba(30,64,175,0.7);
-      box-shadow: 0 18px 30px rgba(15,23,42,0.7);
-    }
-    .card-muted {
-      background: linear-gradient(to bottom right, rgba(15,23,42,0.9), rgba(15,23,42,0.96));
-      border: 1px solid rgba(31,41,55,0.9);
-    }
-
-    .card-title {
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 8px;
+    .body {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      color: #f9fafb;
+      min-height: 420px;
     }
-    .card-desc {
+
+    /* LEFT login screen (only before login) */
+    #login-screen {
+      width: 100%;
+      padding: 26px 26px 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .login-card {
+      width: 100%;
+      max-width: 360px;
+      background: radial-gradient(circle at top left, rgba(59,130,246,0.23), rgba(15,23,42,0.97));
+      border-radius: 18px;
+      padding: 22px 20px 18px;
+      border: 1px solid rgba(37,99,235,0.7);
+      box-shadow: 0 22px 40px rgba(15,23,42,0.85);
+    }
+    .login-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .login-sub {
       font-size: 12px;
       color: #9ca3af;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
     }
 
     label {
       display: block;
-      margin-top: 8px;
       font-size: 12px;
       color: #e5e7eb;
+      margin-top: 10px;
     }
     input[type="text"],
     input[type="password"],
     input[type="number"],
-    textarea {
+    input[type="file"],
+    textarea,
+    select {
       width: 100%;
       margin-top: 4px;
-      padding: 7px 9px;
-      border-radius: 8px;
+      padding: 8px 10px;
+      border-radius: 9px;
       border: 1px solid rgba(55,65,81,0.9);
-      background-color: rgba(15,23,42,0.95);
+      background-color: rgba(15,23,42,0.98);
       color: #e5e7eb;
       font-size: 13px;
       outline: none;
-      transition: border 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+      transition: border 0.14s ease, box-shadow 0.14s ease, background-color 0.14s ease;
     }
     input::placeholder,
     textarea::placeholder {
       color: #6b7280;
     }
     input:focus,
-    textarea:focus {
-      border-color: #22d3ee;
-      box-shadow: 0 0 0 1px rgba(34,211,238,0.8);
+    textarea:focus,
+    select:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.85);
       background-color: rgba(15,23,42,1);
     }
     textarea {
@@ -158,17 +172,7 @@
       max-height: 260px;
     }
     input[type="file"] {
-      margin-top: 6px;
-      font-size: 12px;
-      color: #e5e7eb;
-    }
-
-    .row {
-      display: flex;
-      gap: 10px;
-    }
-    .row > div {
-      flex: 1;
+      padding: 5px 0;
     }
 
     .btn {
@@ -176,37 +180,37 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
-      padding: 7px 14px;
+      padding: 8px 16px;
       border-radius: 999px;
       border: none;
       cursor: pointer;
       font-size: 13px;
       font-weight: 500;
-      margin-top: 10px;
-      transition: transform 0.1s ease, box-shadow 0.15s ease, background 0.15s ease;
+      margin-top: 14px;
+      transition: transform 0.08s ease, box-shadow 0.12s ease, background 0.12s ease;
     }
     .btn-primary {
       background: linear-gradient(to right, #22c55e, #22d3ee);
-      color: #0f172a;
-      box-shadow: 0 12px 22px rgba(34,197,94,0.45);
+      color: #020617;
+      box-shadow: 0 16px 30px rgba(34,197,94,0.5);
     }
     .btn-primary:hover {
       transform: translateY(-1px);
-      box-shadow: 0 16px 28px rgba(34,197,94,0.55);
+      box-shadow: 0 20px 40px rgba(34,197,94,0.6);
     }
     .btn-secondary {
       background: rgba(15,23,42,0.9);
       color: #e5e7eb;
-      border: 1px solid rgba(55,65,81,1);
+      border: 1px solid rgba(75,85,99,1);
     }
     .btn-secondary:hover {
-      background: rgba(15,23,42,1);
       transform: translateY(-1px);
+      border-color: #e5e7eb;
     }
     .btn-ghost {
       background: transparent;
       color: #9ca3af;
-      border: 1px solid rgba(75,85,99,0.8);
+      border: 1px solid rgba(75,85,99,0.9);
     }
     .btn-ghost:hover {
       color: #e5e7eb;
@@ -214,346 +218,705 @@
       transform: translateY(-1px);
     }
 
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.9);
-      border: 1px solid rgba(55,65,81,1);
-      font-size: 11px;
-      color: #9ca3af;
-    }
-
-    .status-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-      margin-top: 8px;
-    }
-    .status-card {
-      padding: 8px 9px;
-      border-radius: 12px;
-      background: radial-gradient(circle at top, rgba(15,23,42,0.95), rgba(15,23,42,1));
-      border: 1px solid rgba(31,41,55,0.9);
-      font-size: 12px;
-    }
-    .status-label {
-      font-size: 11px;
-      color: #9ca3af;
-      margin-bottom: 3px;
-    }
-    .status-value {
-      font-size: 16px;
-      font-weight: 600;
-    }
-
-    .status-log {
-      margin-top: 12px;
-      padding: 10px;
-      border-radius: 10px;
-      background: rgba(15,23,42,0.9);
-      border: 1px dashed rgba(55,65,81,0.9);
-      max-height: 160px;
-      overflow: auto;
-      font-size: 11px;
-      color: #d1d5db;
-      white-space: pre-line;
-    }
-
-    .login-only {
-      max-width: 360px;
-      margin: 26px auto;
-    }
-
-    .hidden { display: none; }
-
     .small {
       font-size: 11px;
       color: #9ca3af;
     }
-    .tag-green { color: #4ade80; }
-    .tag-red { color: #f97373; }
-    .tag-blue { color: #38bdf8; }
+    .small code {
+      font-size: 11px;
+    }
 
-    .user-label {
+    .error {
+      margin-top: 8px;
       font-size: 12px;
+      color: #f97373;
+    }
+
+    .hidden { display: none !important; }
+
+    /* DASHBOARD (after login) */
+    #dashboard {
+      display: none;
+      width: 100%;
+    }
+    .dashboard-inner {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      min-height: 420px;
+    }
+    @media (max-width: 880px) {
+      .dashboard-inner {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .sidebar {
+      border-right: 1px solid rgba(31,41,55,0.9);
+      background: linear-gradient(to bottom, rgba(15,23,42,0.98), rgba(15,23,42,1));
+      padding: 18px 12px 18px;
+    }
+    .nav-title {
+      font-size: 11px;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 10px;
+    }
+    .nav-item {
+      width: 100%;
+      text-align: left;
+      padding: 7px 10px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #9ca3af;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      margin-bottom: 6px;
+      transition: background 0.12s ease, border 0.12s ease, color 0.12s ease;
+    }
+    .nav-item span {
+      font-weight: 500;
+    }
+    .nav-item small {
+      font-size: 11px;
+      color: #6b7280;
+    }
+    .nav-item.active {
+      background: radial-gradient(circle at top left, rgba(59,130,246,0.35), rgba(15,23,42,1));
+      color: #f9fafb;
+      border-color: rgba(59,130,246,0.9);
+    }
+    .nav-footer {
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(55,65,81,0.9);
+      font-size: 11px;
       color: #9ca3af;
     }
-    .user-label span {
-      color: #e5e7eb;
+
+    .main {
+      padding: 18px 20px;
+    }
+    .view {
+      display: none;
+    }
+    .view.active {
+      display: block;
+    }
+    .view-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .view-sub {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 14px;
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, rgba(31,41,55,0.7), rgba(15,23,42,0.98));
+      border-radius: 14px;
+      padding: 12px 12px 10px;
+      border: 1px solid rgba(55,65,81,0.9);
+      margin-bottom: 12px;
+    }
+
+    .flex-row {
+      display: flex;
+      gap: 10px;
+    }
+    .flex-row > div {
+      flex: 1;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 6px;
+    }
+    @media (max-width: 880px) {
+      .stats-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    .stat-card {
+      border-radius: 10px;
+      padding: 6px 8px;
+      background: rgba(15,23,42,0.98);
+      border: 1px solid rgba(55,65,81,0.9);
+      font-size: 11px;
+    }
+    .stat-label {
+      color: #9ca3af;
+      margin-bottom: 2px;
+    }
+    .stat-value {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .stat-good { color: #4ade80; }
+    .stat-bad { color: #fb7185; }
+
+    .log-box {
+      margin-top: 8px;
+      padding: 8px;
+      border-radius: 10px;
+      background: rgba(15,23,42,0.98);
+      border: 1px dashed rgba(75,85,99,1);
+      max-height: 170px;
+      overflow-y: auto;
+      font-size: 11px;
+      white-space: pre-line;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+    th, td {
+      padding: 6px 6px;
+      border-bottom: 1px solid rgba(31,41,55,0.9);
+      text-align: left;
+    }
+    th {
       font-weight: 500;
+      color: #9ca3af;
+    }
+    tr:hover td {
+      background: rgba(15,23,42,0.95);
+      cursor: pointer;
+    }
+    .badge-status {
+      font-size: 11px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(75,85,99,1);
+      display: inline-block;
+    }
+    .badge-status.running {
+      border-color: #38bdf8;
+      color: #38bdf8;
+    }
+    .badge-status.finished {
+      border-color: #4ade80;
+      color: #4ade80;
+    }
+    .badge-status.stopped {
+      border-color: #f97373;
+      color: #f97373;
+    }
+    .badge-status.queued {
+      border-color: #eab308;
+      color: #eab308;
     }
   </style>
 </head>
 <body>
-  <div class="app-shell">
-    <div class="app-header">
+  <div class="shell">
+    <div class="header">
       <div class="logo">
         <div class="logo-badge">SV</div>
         <div>
           <div class="logo-text-title">SV Bulk Mailer</div>
-          <div class="logo-text-sub">Send via your own SMTP &amp; SES</div>
+          <div class="logo-text-sub">SMTP based campaign engine</div>
         </div>
       </div>
       <div class="header-right">
-        <div class="badge">
-          <span>✓ No shared IPs</span>
-          <span>•</span>
-          <span>SMTP per user</span>
+        <div class="pill">
+          <div class="dot"></div>
+          <span>Send via your own SMTP &amp; SES</span>
         </div>
-        <div style="margin-top: 6px; font-size: 11px;">
-          <span id="user-display" class="user-label">Not logged in</span>
+        <div class="user-label" id="user-label">
+          Not logged in
         </div>
       </div>
     </div>
 
-    <div class="app-body">
-      <!-- LEFT SIDE: LOGIN + MAIN FORM -->
-      <div>
-        <!-- LOGIN CARD -->
-        <div class="card login-only" id="login-card">
-          <div class="card-title">
-            Login
-            <span class="pill">Manual accounts in <code>main.py</code></span>
-          </div>
-          <div class="card-desc">
-            Enter the username &amp; password provided by your provider. Once logged in,
-            you can configure SMTP and start campaigns.
-          </div>
+    <!-- LOGIN SCREEN (only visible before login) -->
+    <div id="login-screen">
+      <div class="login-card">
+        <div class="login-title">Sign in</div>
+        <div class="login-sub">
+          Enter the username &amp; password created for you by the provider.
+        </div>
+        <label>Username
+          <input type="text" id="login_username" placeholder="e.g. client1" autocomplete="username" />
+        </label>
+        <label>Password
+          <input type="password" id="login_password" placeholder="••••••••" autocomplete="current-password" />
+        </label>
+        <button class="btn btn-primary" id="login_btn">Continue</button>
+        <div id="login_error" class="error hidden"></div>
+        <div class="small" style="margin-top:10px;">
+          Accounts are defined manually in <code>main.py</code> under <code>USERS</code>.
+        </div>
+      </div>
+    </div>
 
-          <label>Username
-            <input type="text" id="username" placeholder="e.g. client1" />
-          </label>
-          <label>Password
-            <input type="password" id="password" placeholder="••••••••" />
-          </label>
-
-          <button class="btn btn-primary" id="login-btn">
-            Login
+    <!-- DASHBOARD (after login) -->
+    <div id="dashboard">
+      <div class="dashboard-inner">
+        <div class="sidebar">
+          <div class="nav-title">Navigation</div>
+          <button class="nav-item active" data-view="smtp">
+            <span>SMTP profiles</span>
+            <small id="smtp_count_label">0 saved</small>
+          </button>
+          <button class="nav-item" data-view="create">
+            <span>Create campaign</span>
+            <small>Use saved SMTP</small>
+          </button>
+          <button class="nav-item" data-view="campaigns">
+            <span>My campaigns</span>
+            <small id="campaign_count_label">0 total</small>
           </button>
 
-          <div class="small" style="margin-top: 10px;">
-            Having trouble? Check with your provider that your login is added in <code>USERS</code>.
+          <div class="nav-footer">
+            SMTP stays with each user’s own provider.  
+            Respect SES limits to avoid blocks.
           </div>
         </div>
 
-        <!-- MAIN APP (hidden until login) -->
-        <div id="app-main" class="hidden">
-          <div class="card card-muted">
-            <div class="card-title">
-              SMTP settings
-              <span class="pill">AWS SES / Other SMTP</span>
-            </div>
-            <div class="card-desc">
-              Each user sends from their own SMTP credentials. Make sure your
-              <span class="tag-blue">From email</span> is verified in SES and limits are approved.
+        <div class="main">
+          <!-- SMTP VIEW -->
+          <div class="view active" id="view-smtp">
+            <div class="view-title">SMTP profiles</div>
+            <div class="view-sub">
+              Save SMTP credentials per user. Stored in your browser only (no shared database).
             </div>
 
-            <label>SMTP Host
-              <input type="text" id="smtp_host" placeholder="email-smtp.ap-south-1.amazonaws.com" />
-            </label>
-            <div class="row">
-              <div>
-                <label>SMTP Port
-                  <input type="number" id="smtp_port" value="587" />
-                </label>
+            <div class="card">
+              <div class="small" style="margin-bottom:6px;">New / edit SMTP profile</div>
+              <label>Profile name
+                <input type="text" id="smtp_profile_name" placeholder="e.g. Main SES AP-SOUTH-1" />
+              </label>
+              <label>Host
+                <input type="text" id="smtp_host" placeholder="email-smtp.ap-south-1.amazonaws.com" />
+              </label>
+              <div class="flex-row">
+                <div>
+                  <label>Port
+                    <input type="number" id="smtp_port" value="587" />
+                  </label>
+                </div>
+                <div>
+                  <label>Use TLS
+                    <div style="margin-top:6px;">
+                      <input type="checkbox" id="smtp_use_tls" checked />
+                      <span class="small">Recommended</span>
+                    </div>
+                  </label>
+                </div>
               </div>
-              <div>
-                <label>Use TLS
-                  <div style="margin-top: 6px;">
-                    <input type="checkbox" id="smtp_use_tls" checked /> <span class="small">Recommended</span>
-                  </div>
-                </label>
-              </div>
-            </div>
-            <label>SMTP Username
-              <input type="text" id="smtp_username" placeholder="SMTP username from SES" />
-            </label>
-            <label>SMTP Password
-              <input type="password" id="smtp_password" placeholder="SMTP password from SES" />
-            </label>
-            <label>From Email
-              <input type="text" id="from_email" placeholder="verified@yourdomain.com" />
-            </label>
-          </div>
+              <label>SMTP username
+                <input type="text" id="smtp_username" placeholder="SMTP username from SES" />
+              </label>
+              <label>SMTP password
+                <input type="password" id="smtp_password" placeholder="SMTP password from SES" />
+              </label>
+              <label>From email
+                <input type="text" id="from_email" placeholder="verified@yourdomain.com" />
+              </label>
 
-          <div class="card card-muted" style="margin-top: 16px;">
-            <div class="card-title">
-              Campaign
-              <span class="pill">Supports {{name}} and {{email}}</span>
-            </div>
-            <div class="card-desc">
-              Upload a CSV with at least an <code>email</code> column (optional: <code>name</code>).
-              Use <span class="tag-blue">{{name}}</span> and <span class="tag-blue">{{email}}</span> in your HTML.
+              <button class="btn btn-primary" id="save_smtp_btn">Save profile</button>
             </div>
 
-            <label>Subject
-              <input type="text" id="subject" placeholder="e.g. Welcome to our newsletter" />
-            </label>
-
-            <label>HTML body</label>
-            <textarea id="html_body" placeholder="Hi {{name}},&#10;&#10>Welcome!"></textarea>
-
-            <div class="row">
-              <div>
-                <label>Speed (emails per minute)
-                  <input type="number" id="speed_per_minute" value="60" />
-                </label>
-              </div>
-              <div>
-                <label>Contacts CSV
-                  <input type="file" id="contacts_file" accept=".csv" />
-                </label>
+            <div class="card">
+              <div class="small" style="margin-bottom:4px;">Saved profiles</div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Host</th>
+                    <th>From email</th>
+                  </tr>
+                </thead>
+                <tbody id="smtp_table_body">
+                  <tr><td colspan="3" class="small" style="padding-top:6px;">No profiles yet.</td></tr>
+                </tbody>
+              </table>
+              <div class="small" style="margin-top:6px;">
+                Tip: click a row to load it into the form.
               </div>
             </div>
-
-            <button class="btn btn-primary" id="start_btn">Start campaign</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- RIGHT SIDE: STATUS PANEL -->
-      <div>
-        <div class="card card-muted">
-          <div class="card-title">
-            Campaign status
-            <span class="pill">Live stats</span>
-          </div>
-          <div class="card-desc">
-            After starting a campaign, use the ID below to monitor sending. You can also stop a running send.
           </div>
 
-          <label>Campaign ID
-            <input type="text" id="campaign_id" placeholder="Will be filled after you start a campaign" />
-          </label>
-
-          <div class="row" style="margin-top: 8px;">
-            <div>
-              <button class="btn btn-secondary" id="check_status_btn">Refresh status</button>
+          <!-- CREATE CAMPAIGN VIEW -->
+          <div class="view" id="view-create">
+            <div class="view-title">Create campaign</div>
+            <div class="view-sub">
+              Choose an SMTP profile, upload a CSV, and control sending speed.
             </div>
-            <div>
-              <button class="btn btn-ghost" id="stop_campaign_btn">Stop campaign</button>
+
+            <div class="card">
+              <label>SMTP profile
+                <select id="create_smtp_select">
+                  <option value="">Select saved profile…</option>
+                </select>
+              </label>
+
+              <label>Subject
+                <input type="text" id="subject" placeholder="e.g. Welcome to our newsletter" />
+              </label>
+
+              <label>HTML body</label>
+              <textarea id="html_body" placeholder="Hi {{name}},&#10;&#10>Welcome!"></textarea>
+              <div class="small" style="margin-top:4px;">
+                Use <code>{{name}}</code> and <code>{{email}}</code> for personalization.
+              </div>
+
+              <div class="flex-row">
+                <div>
+                  <label>Speed (emails per minute)
+                    <input type="number" id="speed_per_minute" value="60" />
+                  </label>
+                </div>
+                <div>
+                  <label>Contacts CSV
+                    <input type="file" id="contacts_file" accept=".csv" />
+                  </label>
+                </div>
+              </div>
+
+              <button class="btn btn-primary" id="start_campaign_btn">Start campaign</button>
+            </div>
+
+            <div class="card">
+              <div class="small">Active campaign analytics</div>
+              <label>Active campaign ID
+                <input type="text" id="active_campaign_id" placeholder="Will be filled when you start a campaign" />
+              </label>
+
+              <div class="stats-row">
+                <div class="stat-card">
+                  <div class="stat-label">Total</div>
+                  <div class="stat-value" id="stat_total">0</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Processed</div>
+                  <div class="stat-value" id="stat_processed">0</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Delivered</div>
+                  <div class="stat-value stat-good" id="stat_delivered">0</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Bounced / failed</div>
+                  <div class="stat-value stat-bad" id="stat_bounced">0</div>
+                </div>
+              </div>
+
+              <div style="margin-top:8px; display:flex; gap:8px;">
+                <button class="btn btn-secondary" id="refresh_active_btn">Refresh analytics</button>
+                <button class="btn btn-ghost" id="stop_active_btn">Stop active campaign</button>
+              </div>
+
+              <div class="log-box" id="log_box">
+                Waiting for campaign…
+              </div>
             </div>
           </div>
 
-          <div class="status-grid">
-            <div class="status-card">
-              <div class="status-label">Total recipients</div>
-              <div class="status-value" id="stat_total">0</div>
+          <!-- CAMPAIGNS VIEW -->
+          <div class="view" id="view-campaigns">
+            <div class="view-title">My campaigns</div>
+            <div class="view-sub">
+              List of campaigns started during this server session. Click a row to load analytics.
             </div>
-            <div class="status-card">
-              <div class="status-label">Processed</div>
-              <div class="status-value" id="stat_processed">0</div>
-            </div>
-            <div class="status-card">
-              <div class="status-label">Delivered (SMTP OK)</div>
-              <div class="status-value tag-green" id="stat_delivered">0</div>
-            </div>
-            <div class="status-card">
-              <div class="status-label">Bounced / Failed</div>
-              <div class="status-value tag-red" id="stat_bounced">0</div>
+
+            <div class="card">
+              <div class="small" style="margin-bottom:4px;">Campaigns</div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Subject</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th>Delivered</th>
+                    <th>Failed</th>
+                  </tr>
+                </thead>
+                <tbody id="campaigns_table_body">
+                  <tr><td colspan="6" class="small" style="padding-top:6px;">No campaigns yet.</td></tr>
+                </tbody>
+              </table>
+              <div style="margin-top:6px;">
+                <button class="btn btn-secondary" id="refresh_campaigns_btn">Refresh list</button>
+              </div>
             </div>
           </div>
 
-          <div class="status-log" id="status_log">
-            Waiting for campaign...
-          </div>
-        </div>
-
-        <div class="card card-muted" style="margin-top: 12px;">
-          <div class="card-title">
-            Notes
-          </div>
-          <div class="small">
-            • <span class="tag-green">Delivered</span> means SMTP accepted the email.<br/>
-            • True mailbox bounces (later) require SES SNS + database – this app only tracks send-time results.<br/>
-            • Each user uses their own SMTP / SES account and limits.
-          </div>
-        </div>
-      </div>
-    </div>
+        </div> <!-- main -->
+      </div> <!-- dashboard-inner -->
+    </div> <!-- dashboard -->
   </div>
 
   <script>
-    let loggedInUser = null;
-
-    function getAuthHeader() {
-      const u = document.getElementById("username").value;
-      const p = document.getElementById("password").value;
-      if (!u || !p) return null;
-      const token = btoa(u + ":" + p);
-      return "Basic " + token;
-    }
+    let AUTH_HEADER = null;
+    let CURRENT_USER = null;
+    let CAMPAIGN_POLL_TIMER = null;
 
     function setLoggedIn(user) {
-      loggedInUser = user;
-      document.getElementById("login-card").classList.add("hidden");
-      document.getElementById("app-main").classList.remove("hidden");
-      const userDisplay = document.getElementById("user-display");
-      userDisplay.innerHTML = 'Logged in as <span>' + user + '</span>';
+      CURRENT_USER = user;
+      document.getElementById("user-label").innerHTML = 'Logged in as <span>' + user + '</span>';
+      document.getElementById("login-screen").classList.add("hidden");
+      document.getElementById("dashboard").style.display = "block";
+      loadSmtpProfiles();
+      loadCampaignsTable();
     }
 
-    function logStatus(msg, replace=false) {
-      const el = document.getElementById("status_log");
+    function showError(msg) {
+      const el = document.getElementById("login_error");
+      el.textContent = msg;
+      el.classList.remove("hidden");
+    }
+
+    function clearError() {
+      const el = document.getElementById("login_error");
+      el.textContent = "";
+      el.classList.add("hidden");
+    }
+
+    function switchView(view) {
+      document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+      document.getElementById("view-" + view).classList.add("active");
+      document.querySelectorAll(".nav-item").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.view === view);
+      });
+    }
+
+    function logLine(text, replace=false) {
+      const box = document.getElementById("log_box");
       if (replace) {
-        el.textContent = msg + "\n";
+        box.textContent = text + "\n";
       } else {
-        if (el.textContent.trim() === "Waiting for campaign...") {
-          el.textContent = "";
+        if (box.textContent.trim() === "Waiting for campaign…") {
+          box.textContent = "";
         }
-        el.textContent += msg + "\n";
-        el.scrollTop = el.scrollHeight;
+        box.textContent += text + "\n";
+        box.scrollTop = box.scrollHeight;
       }
     }
 
-    // LOGIN HANDLER
-    document.getElementById("login-btn").addEventListener("click", async () => {
-      const header = getAuthHeader();
-      if (!header) {
-        alert("Please enter username and password.");
+    function getStorageKey(prefix) {
+      return prefix + "_" + (CURRENT_USER || "anon");
+    }
+
+    // ====== LOGIN ======
+    document.getElementById("login_btn").addEventListener("click", async () => {
+      clearError();
+      const u = document.getElementById("login_username").value.trim();
+      const p = document.getElementById("login_password").value;
+      if (!u || !p) {
+        showError("Please enter both username and password.");
         return;
       }
+      const token = btoa(u + ":" + p);
+      AUTH_HEADER = "Basic " + token;
+
       try {
         const res = await fetch("/me", {
-          headers: { "Authorization": header }
+          headers: { "Authorization": AUTH_HEADER }
         });
         const data = await res.json();
         if (!res.ok) {
-          alert("Login failed: " + (data.detail || JSON.stringify(data)));
+          AUTH_HEADER = null;
+          showError(data.detail || "Invalid credentials.");
           return;
         }
         setLoggedIn(data.user);
-        logStatus("Logged in as " + data.user + ". Start a campaign to see status here.", true);
       } catch (e) {
-        alert("Login request failed: " + e.toString());
+        AUTH_HEADER = null;
+        showError("Login request failed: " + e.toString());
       }
     });
 
-    // START CAMPAIGN
-    document.getElementById("start_btn").addEventListener("click", async () => {
-      if (!loggedInUser) {
+    // ====== SIDEBAR NAV ======
+    document.querySelectorAll(".nav-item").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const view = btn.dataset.view;
+        switchView(view);
+      });
+    });
+
+    // ====== SMTP PROFILES (localStorage) ======
+    function loadSmtpProfiles() {
+      const key = getStorageKey("sv_smtp_profiles");
+      const raw = localStorage.getItem(key);
+      let profiles = [];
+      if (raw) {
+        try { profiles = JSON.parse(raw); } catch {}
+      }
+      renderSmtpProfiles(profiles);
+      populateSmtpSelect(profiles);
+    }
+
+    function saveSmtpProfiles(profiles) {
+      const key = getStorageKey("sv_smtp_profiles");
+      localStorage.setItem(key, JSON.stringify(profiles));
+      renderSmtpProfiles(profiles);
+      populateSmtpSelect(profiles);
+    }
+
+    function renderSmtpProfiles(profiles) {
+      const tbody = document.getElementById("smtp_table_body");
+      tbody.innerHTML = "";
+      if (!profiles.length) {
+        tbody.innerHTML = '<tr><td colspan="3" class="small" style="padding-top:6px;">No profiles yet.</td></tr>';
+      } else {
+        profiles.forEach((p, idx) => {
+          const tr = document.createElement("tr");
+          tr.dataset.index = idx;
+          tr.innerHTML = `
+            <td>${p.name || "(no name)"}</td>
+            <td>${p.host}</td>
+            <td>${p.from_email}</td>
+          `;
+          tr.addEventListener("click", () => {
+            document.getElementById("smtp_profile_name").value = p.name || "";
+            document.getElementById("smtp_host").value = p.host || "";
+            document.getElementById("smtp_port").value = p.port || 587;
+            document.getElementById("smtp_use_tls").checked = !!p.use_tls;
+            document.getElementById("smtp_username").value = p.username || "";
+            document.getElementById("smtp_password").value = p.password || "";
+            document.getElementById("from_email").value = p.from_email || "";
+          });
+          tbody.appendChild(tr);
+        });
+      }
+      document.getElementById("smtp_count_label").textContent = profiles.length + " saved";
+    }
+
+    function populateSmtpSelect(profiles) {
+      const sel = document.getElementById("create_smtp_select");
+      sel.innerHTML = '<option value="">Select saved profile…</option>';
+      profiles.forEach((p, idx) => {
+        const opt = document.createElement("option");
+        opt.value = String(idx);
+        opt.textContent = p.name || ("Profile " + (idx + 1));
+        sel.appendChild(opt);
+      });
+    }
+
+    document.getElementById("save_smtp_btn").addEventListener("click", () => {
+      const name = document.getElementById("smtp_profile_name").value.trim();
+      const host = document.getElementById("smtp_host").value.trim();
+      const port = parseInt(document.getElementById("smtp_port").value || "587", 10);
+      const use_tls = document.getElementById("smtp_use_tls").checked;
+      const username = document.getElementById("smtp_username").value.trim();
+      const password = document.getElementById("smtp_password").value;
+      const from_email = document.getElementById("from_email").value.trim();
+      if (!host || !from_email) {
+        alert("Host and From email are required.");
+        return;
+      }
+      const key = getStorageKey("sv_smtp_profiles");
+      const raw = localStorage.getItem(key);
+      let profiles = [];
+      if (raw) {
+        try { profiles = JSON.parse(raw); } catch {}
+      }
+      profiles.push({ name, host, port, use_tls, username, password, from_email });
+      saveSmtpProfiles(profiles);
+      alert("SMTP profile saved.");
+    });
+
+    document.getElementById("create_smtp_select").addEventListener("change", () => {
+      const idx = document.getElementById("create_smtp_select").value;
+      if (!idx) return;
+      const key = getStorageKey("sv_smtp_profiles");
+      const raw = localStorage.getItem(key);
+      if (!raw) return;
+      let profiles = [];
+      try { profiles = JSON.parse(raw); } catch {}
+      const p = profiles[parseInt(idx, 10)];
+      if (!p) return;
+      // Fill create-campaign SMTP fields (hidden, not visible but used to send)
+      document.getElementById("smtp_host").value = p.host || "";
+      document.getElementById("smtp_port").value = p.port || 587;
+      document.getElementById("smtp_use_tls").checked = !!p.use_tls;
+      document.getElementById("smtp_username").value = p.username || "";
+      document.getElementById("smtp_password").value = p.password || "";
+      document.getElementById("from_email").value = p.from_email || "";
+    });
+
+    // ====== CAMPAIGN LIST (local + server) ======
+    function loadCampaignsTable() {
+      const header = AUTH_HEADER;
+      if (!header) return;
+      fetch("/campaigns", {
+        headers: { "Authorization": header }
+      }).then(r => r.json())
+        .then(data => {
+          renderCampaignsTable(data);
+        }).catch(err => {
+          console.error(err);
+        });
+    }
+
+    function renderCampaignsTable(camps) {
+      const tbody = document.getElementById("campaigns_table_body");
+      tbody.innerHTML = "";
+      if (!camps || !camps.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="small" style="padding-top:6px;">No campaigns yet.</td></tr>';
+      } else {
+        camps.forEach(c => {
+          const tr = document.createElement("tr");
+          const cls = "badge-status " + (c.status || "queued");
+          tr.innerHTML = `
+            <td>${c.campaign_id}</td>
+            <td>${c.subject || ""}</td>
+            <td><span class="${cls}">${c.status}</span></td>
+            <td>${c.total}</td>
+            <td>${c.delivered}</td>
+            <td>${c.bounced}</td>
+          `;
+          tr.addEventListener("click", () => {
+            document.getElementById("active_campaign_id").value = c.campaign_id;
+            switchView("create");
+            refreshActiveAnalytics();
+          });
+          tbody.appendChild(tr);
+        });
+      }
+      document.getElementById("campaign_count_label").textContent = (camps || []).length + " total";
+    }
+
+    document.getElementById("refresh_campaigns_btn").addEventListener("click", () => {
+      loadCampaignsTable();
+    });
+
+    // ====== START CAMPAIGN ======
+    document.getElementById("start_campaign_btn").addEventListener("click", async () => {
+      if (!AUTH_HEADER || !CURRENT_USER) {
         alert("Please login first.");
         return;
       }
-
-      const subject = document.getElementById("subject").value;
+      const subject = document.getElementById("subject").value.trim();
       const htmlBody = document.getElementById("html_body").value;
-      const smtpHost = document.getElementById("smtp_host").value;
+      const smtpHost = document.getElementById("smtp_host").value.trim();
       const smtpPort = document.getElementById("smtp_port").value;
-      const smtpUser = document.getElementById("smtp_username").value;
+      const smtpUser = document.getElementById("smtp_username").value.trim();
       const smtpPass = document.getElementById("smtp_password").value;
       const smtpUseTls = document.getElementById("smtp_use_tls").checked;
-      const fromEmail = document.getElementById("from_email").value;
-      const speed = document.getElementById("speed_per_minute").value;
+      const fromEmail = document.getElementById("from_email").value.trim();
+      const speed = document.getElementById("speed_per_minute").value || "60";
       const fileInput = document.getElementById("contacts_file");
       if (!fileInput.files[0]) {
         alert("Please choose a CSV file.");
         return;
       }
       if (!subject || !htmlBody || !smtpHost || !fromEmail) {
-        alert("Please fill SMTP, subject, and HTML body.");
+        alert("Please fill SMTP host, from email, subject, and HTML body.");
         return;
       }
 
@@ -569,111 +932,91 @@
       formData.append("speed_per_minute", speed);
       formData.append("contacts_file", fileInput.files[0]);
 
-      const header = getAuthHeader();
-      if (!header) {
-        alert("Missing auth header. Please login again.");
-        return;
-      }
-
       try {
-        logStatus("Starting campaign...", true);
+        logLine("Starting campaign...", true);
         const res = await fetch("/start_campaign", {
           method: "POST",
-          headers: {
-            "Authorization": header
-          },
+          headers: { "Authorization": AUTH_HEADER },
           body: formData
         });
-
         const data = await res.json();
         if (!res.ok) {
-          logStatus("Error: " + (data.detail || JSON.stringify(data)));
-        } else {
-          logStatus("Campaign started. ID: " + data.campaign_id + " | total contacts: " + data.total_contacts);
-          document.getElementById("campaign_id").value = data.campaign_id;
-          document.getElementById("stat_total").textContent = data.total_contacts;
-          document.getElementById("stat_processed").textContent = "0";
-          document.getElementById("stat_delivered").textContent = "0";
-          document.getElementById("stat_bounced").textContent = "0";
+          logLine("Error: " + (data.detail || JSON.stringify(data)));
+          return;
         }
+        logLine("Campaign started. ID: " + data.campaign_id + " | total: " + data.total_contacts);
+        document.getElementById("active_campaign_id").value = data.campaign_id;
+        document.getElementById("stat_total").textContent = data.total_contacts;
+        document.getElementById("stat_processed").textContent = "0";
+        document.getElementById("stat_delivered").textContent = "0";
+        document.getElementById("stat_bounced").textContent = "0";
+
+        loadCampaignsTable();
+        if (CAMPAIGN_POLL_TIMER) clearInterval(CAMPAIGN_POLL_TIMER);
+        CAMPAIGN_POLL_TIMER = setInterval(refreshActiveAnalytics, 8000);
       } catch (e) {
-        logStatus("Request failed: " + e.toString());
+        logLine("Request failed: " + e.toString());
       }
     });
 
-    // CHECK STATUS
-    document.getElementById("check_status_btn").addEventListener("click", async () => {
-      if (!loggedInUser) {
-        alert("Please login first.");
-        return;
-      }
-      const cid = document.getElementById("campaign_id").value.trim();
+    // ====== ACTIVE ANALYTICS ======
+    async function refreshActiveAnalytics() {
+      const cid = document.getElementById("active_campaign_id").value.trim();
       if (!cid) {
-        alert("Enter campaign ID first.");
-        return;
-      }
-      const header = getAuthHeader();
-      if (!header) {
-        alert("Missing auth header. Please login again.");
+        logLine("No active campaign ID set.", true);
         return;
       }
       try {
         const res = await fetch("/campaign_status/" + encodeURIComponent(cid), {
-          headers: {
-            "Authorization": header
-          }
+          headers: { "Authorization": AUTH_HEADER }
         });
         const data = await res.json();
         if (!res.ok) {
-          logStatus("Error: " + (data.detail || JSON.stringify(data)));
-        } else {
-          document.getElementById("stat_total").textContent = data.total;
-          document.getElementById("stat_processed").textContent = data.processed;
-          document.getElementById("stat_delivered").textContent = data.delivered;
-          document.getElementById("stat_bounced").textContent = data.bounced;
-          const line = "Status: " + data.status +
-                       " | Processed: " + data.processed + "/" + data.total +
-                       " | Delivered: " + data.delivered +
-                       " | Bounced/Failed: " + data.bounced +
-                       (data.last_error ? " | Last error: " + data.last_error : "");
-          logStatus(line);
+          logLine("Error: " + (data.detail || JSON.stringify(data)));
+          return;
         }
+        document.getElementById("stat_total").textContent = data.total;
+        document.getElementById("stat_processed").textContent = data.processed;
+        document.getElementById("stat_delivered").textContent = data.delivered;
+        document.getElementById("stat_bounced").textContent = data.bounced;
+        const line = "Status: " + data.status +
+                     " | Processed: " + data.processed + "/" + data.total +
+                     " | Delivered: " + data.delivered +
+                     " | Bounced/Failed: " + data.bounced +
+                     (data.last_error ? " | Last error: " + data.last_error : "");
+        logLine(line);
+        if (data.status === "finished" || data.status === "stopped") {
+          if (CAMPAIGN_POLL_TIMER) clearInterval(CAMPAIGN_POLL_TIMER);
+        }
+        loadCampaignsTable();
       } catch (e) {
-        logStatus("Request failed: " + e.toString());
+        logLine("Request failed: " + e.toString());
       }
+    }
+
+    document.getElementById("refresh_active_btn").addEventListener("click", () => {
+      refreshActiveAnalytics();
     });
 
-    // STOP CAMPAIGN
-    document.getElementById("stop_campaign_btn").addEventListener("click", async () => {
-      if (!loggedInUser) {
-        alert("Please login first.");
-        return;
-      }
-      const cid = document.getElementById("campaign_id").value.trim();
+    document.getElementById("stop_active_btn").addEventListener("click", async () => {
+      const cid = document.getElementById("active_campaign_id").value.trim();
       if (!cid) {
-        alert("Enter campaign ID first.");
-        return;
-      }
-      const header = getAuthHeader();
-      if (!header) {
-        alert("Missing auth header. Please login again.");
+        alert("Enter active campaign ID first.");
         return;
       }
       try {
         const res = await fetch("/stop_campaign/" + encodeURIComponent(cid), {
           method: "POST",
-          headers: {
-            "Authorization": header
-          }
+          headers: { "Authorization": AUTH_HEADER }
         });
         const data = await res.json();
         if (!res.ok) {
-          logStatus("Error: " + (data.detail || JSON.stringify(data)));
-        } else {
-          logStatus("Stop requested for campaign: " + data.campaign_id);
+          logLine("Error: " + (data.detail || JSON.stringify(data)));
+          return;
         }
+        logLine("Stop requested for campaign: " + data.campaign_id);
       } catch (e) {
-        logStatus("Request failed: " + e.toString());
+        logLine("Request failed: " + e.toString());
       }
     });
   </script>
