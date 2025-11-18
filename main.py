@@ -21,6 +21,7 @@ security = HTTPBasic()
 USERS = {
     "user1": "pass1",
     "user2": "pass2",
+    "samual": "samual123",
     # "anotheruser": "anotherpass",
 }
 
