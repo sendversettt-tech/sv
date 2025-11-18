@@ -119,9 +119,10 @@ def run_campaign(campaign_id: str):
                 html=personalized_html,
             )
             camp["sent"] += 1
+            camp["delivered"] += 1  # SMTP accepted it
         except Exception as e:
             camp["failed"] += 1
-            # For simplicity, keep only last error
+            camp["bounced"] += 1   # treat SMTP failures as bounced
             camp["last_error"] = str(e)
 
         camp["processed"] += 1
@@ -171,6 +172,8 @@ async def start_campaign(
         "processed": 0,
         "sent": 0,
         "failed": 0,
+        "delivered": 0,  # same as sent for now
+        "bounced": 0,    # smtp-level failures
         "last_error": None,
     }
 
@@ -197,6 +200,8 @@ def campaign_status(campaign_id: str, current_user: str = Depends(get_current_us
         "processed": camp["processed"],
         "sent": camp["sent"],
         "failed": camp["failed"],
+        "delivered": camp["delivered"],
+        "bounced": camp["bounced"],
         "last_error": camp["last_error"],
         "total": len(camp["contacts"]),
     }
@@ -212,6 +217,12 @@ def stop_campaign(campaign_id: str, current_user: str = Depends(get_current_user
     return {"message": "Campaign stop requested", "campaign_id": campaign_id}
 
 
+@app.get("/me")
+def me(current_user: str = Depends(get_current_user)):
+    """Simple endpoint to verify login from frontend."""
+    return {"user": current_user}
+
+
 @app.get("/", response_class=HTMLResponse)
 def root():
     # Serve index.html from the same folder
@@ -220,4 +231,3 @@ def root():
             return f.read()
     except FileNotFoundError:
         return HTMLResponse("<h1>Backend is running.</h1>", status_code=200)
-
