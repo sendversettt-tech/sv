@@ -13,7 +13,7 @@ app = FastAPI()
 security = HTTPBasic()
 
 # ========= MANUAL USERS =========
-# You can manually add/remove users here
+# Edit this dict in code to add/remove users
 USERS = {
     "user1": "pass1",
     "user2": "pass2",
@@ -39,10 +39,10 @@ def get_current_user(credentials: HTTPBasicCredentials = Depends(security)):
 def parse_contacts_file(file_bytes: bytes, filename: str) -> List[Dict[str, str]]:
     """
     Very simple CSV parser: expects columns like: name,email
-    For now we only support CSV to keep things minimal.
+    Only CSV for now to keep it minimal.
     """
     if not filename.lower().endswith(".csv"):
-        raise HTTPException(status_code=400, detail="Only CSV is supported in this minimal version")
+        raise HTTPException(status_code=400, detail="Only CSV is supported in this version")
 
     text = file_bytes.decode("utf-8", errors="ignore")
     reader = csv.DictReader(io.StringIO(text))
@@ -119,10 +119,10 @@ def run_campaign(campaign_id: str):
                 html=personalized_html,
             )
             camp["sent"] += 1
-            camp["delivered"] += 1  # SMTP accepted it
+            camp["delivered"] += 1  # SMTP accepted the email
         except Exception as e:
             camp["failed"] += 1
-            camp["bounced"] += 1   # treat SMTP failures as bounced
+            camp["bounced"] += 1   # SMTP failed at send time
             camp["last_error"] = str(e)
 
         camp["processed"] += 1
@@ -172,9 +172,11 @@ async def start_campaign(
         "processed": 0,
         "sent": 0,
         "failed": 0,
-        "delivered": 0,  # same as sent for now
-        "bounced": 0,    # smtp-level failures
+        "delivered": 0,
+        "bounced": 0,
         "last_error": None,
+        "created_at": time.time(),
+        "total": len(contacts),
     }
 
     # Start background thread
@@ -196,6 +198,7 @@ def campaign_status(campaign_id: str, current_user: str = Depends(get_current_us
 
     return {
         "campaign_id": campaign_id,
+        "subject": camp["subject"],
         "status": camp["status"],
         "processed": camp["processed"],
         "sent": camp["sent"],
@@ -203,7 +206,8 @@ def campaign_status(campaign_id: str, current_user: str = Depends(get_current_us
         "delivered": camp["delivered"],
         "bounced": camp["bounced"],
         "last_error": camp["last_error"],
-        "total": len(camp["contacts"]),
+        "total": camp["total"],
+        "created_at": camp["created_at"],
     }
 
 
@@ -215,6 +219,28 @@ def stop_campaign(campaign_id: str, current_user: str = Depends(get_current_user
 
     camp["status"] = "stopped"
     return {"message": "Campaign stop requested", "campaign_id": campaign_id}
+
+
+@app.get("/campaigns")
+def list_campaigns(current_user: str = Depends(get_current_user)):
+    """Return all campaigns for the logged-in user (for dashboard listing)."""
+    result = []
+    for cid, camp in CAMPAIGNS.items():
+        if camp["user"] != current_user:
+            continue
+        result.append({
+            "campaign_id": cid,
+            "subject": camp["subject"],
+            "status": camp["status"],
+            "total": camp["total"],
+            "delivered": camp["delivered"],
+            "bounced": camp["bounced"],
+            "processed": camp["processed"],
+            "created_at": camp["created_at"],
+        })
+    # newest first
+    result.sort(key=lambda c: c["created_at"], reverse=True)
+    return result
 
 
 @app.get("/me")
