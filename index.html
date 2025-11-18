@@ -1,1 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Simple Bulk Mailer</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 900px; margin: 20px auto; }
+    fieldset { margin-bottom: 20px; }
+    label { display: block; margin-top: 8px; }
+    input[type="text"], input[type="password"], textarea, input[type="number"] {
+      width: 100%; padding: 6px; box-sizing: border-box;
+    }
+    textarea { height: 150px; }
+    .row { display: flex; gap: 10px; }
+    .row > div { flex: 1; }
+    button { padding: 8px 16px; margin-top: 10px; cursor: pointer; }
+    #status { white-space: pre-line; background: #f7f7f7; padding: 10px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Bulk Mailer</h1>
+
+  <fieldset>
+    <legend>Login</legend>
+    <label>Username: <input type="text" id="username" value="user1" /></label>
+    <label>Password: <input type="password" id="password" value="pass1" /></label>
+    <p style="font-size: 0.9em;">These must match the users defined in <code>main.py</code>.</p>
+  </fieldset>
+
+  <fieldset>
+    <legend>SMTP (AWS SES)</legend>
+    <label>SMTP Host (e.g. email-smtp.ap-south-1.amazonaws.com)
+      <input type="text" id="smtp_host" />
+    </label>
+    <label>SMTP Port (587 or 465)
+      <input type="number" id="smtp_port" value="587" />
+    </label>
+    <label>SMTP Username
+      <input type="text" id="smtp_username" />
+    </label>
+    <label>SMTP Password
+      <input type="password" id="smtp_password" />
+    </label>
+    <label><input type="checkbox" id="smtp_use_tls" checked /> Use TLS</label>
+    <label>From Email (must be verified in SES)
+      <input type="text" id="from_email" />
+    </label>
+  </fieldset>
+
+  <fieldset>
+    <legend>Campaign</legend>
+    <label>Subject:
+      <input type="text" id="subject" />
+    </label>
+    <label>HTML Body (supports {{name}} and {{email}} placeholders):</label>
+    <textarea id="html_body"></textarea>
+    <label>Speed (emails per minute):
+      <input type="number" id="speed_per_minute" value="60" />
+    </label>
+    <label>Contacts CSV (must have "email" column, optional "name"):</label>
+    <input type="file" id="contacts_file" accept=".csv" />
+    <button id="start_btn">Start Campaign</button>
+  </fieldset>
+
+  <fieldset>
+    <legend>Campaign Status</legend>
+    <label>Campaign ID:
+      <input type="text" id="campaign_id" />
+    </label>
+    <div class="row">
+      <div><button id="check_status_btn">Check Status</button></div>
+      <div><button id="stop_campaign_btn">Stop Campaign</button></div>
+    </div>
+    <div id="status"></div>
+  </fieldset>
+
+  <script>
+    function getAuthHeader() {
+      const u = document.getElementById("username").value;
+      const p = document.getElementById("password").value;
+      const token = btoa(u + ":" + p);
+      return "Basic " + token;
+    }
+
+    function logStatus(msg) {
+      const el = document.getElementById("status");
+      el.textContent += msg + "\n";
+    }
+
+    document.getElementById("start_btn").addEventListener("click", async () => {
+      const subject = document.getElementById("subject").value;
+      const htmlBody = document.getElementById("html_body").value;
+      const smtpHost = document.getElementById("smtp_host").value;
+      const smtpPort = document.getElementById("smtp_port").value;
+      const smtpUser = document.getElementById("smtp_username").value;
+      const smtpPass = document.getElementById("smtp_password").value;
+      const smtpUseTls = document.getElementById("smtp_use_tls").checked;
+      const fromEmail = document.getElementById("from_email").value;
+      const speed = document.getElementById("speed_per_minute").value;
+      const fileInput = document.getElementById("contacts_file");
+      if (!fileInput.files[0]) {
+        alert("Please choose a CSV file.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("subject", subject);
+      formData.append("html_body", htmlBody);
+      formData.append("smtp_host", smtpHost);
+      formData.append("smtp_port", smtpPort);
+      formData.append("smtp_username", smtpUser);
+      formData.append("smtp_password", smtpPass);
+      formData.append("smtp_use_tls", smtpUseTls ? "true" : "false");
+      formData.append("from_email", fromEmail);
+      formData.append("speed_per_minute", speed);
+      formData.append("contacts_file", fileInput.files[0]);
+
+      try {
+        const res = await fetch("/start_campaign", {
+          method: "POST",
+          headers: {
+            "Authorization": getAuthHeader()
+          },
+          body: formData
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          logStatus("Error: " + (data.detail || JSON.stringify(data)));
+        } else {
+          logStatus("Campaign started. ID: " + data.campaign_id + ", total contacts: " + data.total_contacts);
+          document.getElementById("campaign_id").value = data.campaign_id;
+        }
+      } catch (e) {
+        logStatus("Request failed: " + e.toString());
+      }
+    });
+
+    document.getElementById("check_status_btn").addEventListener("click", async () => {
+      const cid = document.getElementById("campaign_id").value.trim();
+      if (!cid) {
+        alert("Enter campaign id first.");
+        return;
+      }
+      try {
+        const res = await fetch("/campaign_status/" + encodeURIComponent(cid), {
+          headers: {
+            "Authorization": getAuthHeader()
+          }
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          logStatus("Error: " + (data.detail || JSON.stringify(data)));
+        } else {
+          logStatus("Status: " + data.status + " | " +
+                    "Processed: " + data.processed + "/" + data.total +
+                    " | Sent: " + data.sent +
+                    " | Failed: " + data.failed +
+                    (data.last_error ? " | Last error: " + data.last_error : ""));
+        }
+      } catch (e) {
+        logStatus("Request failed: " + e.toString());
+      }
+    });
+
+    document.getElementById("stop_campaign_btn").addEventListener("click", async () => {
+      const cid = document.getElementById("campaign_id").value.trim();
+      if (!cid) {
+        alert("Enter campaign id first.");
+        return;
+      }
+      try {
+        const res = await fetch("/stop_campaign/" + encodeURIComponent(cid), {
+          method: "POST",
+          headers: {
+            "Authorization": getAuthHeader()
+          }
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          logStatus("Error: " + (data.detail || JSON.stringify(data)));
+        } else {
+          logStatus("Stop requested for campaign: " + data.campaign_id);
+        }
+      } catch (e) {
+        logStatus("Request failed: " + e.toString());
+      }
+    });
+  </script>
+</body>
+</html>
 
