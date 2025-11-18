@@ -498,7 +498,7 @@
           <div class="view active" id="view-smtp">
             <div class="view-title">SMTP profiles</div>
             <div class="view-sub">
-              Save SMTP credentials locally in your browser. Not shared with other users.
+              Save SMTP credentials securely for your SendVerse account. Available on any device after login.
             </div>
 
             <div class="card">
@@ -565,63 +565,62 @@
             </div>
 
             <div class="card">
-  <label>SMTP profile
-    <select id="create_smtp_select">
-      <option value="">Select saved profile…</option>
-    </select>
-  </label>
+              <label>SMTP profile
+                <select id="create_smtp_select">
+                  <option value="">Select saved profile…</option>
+                </select>
+              </label>
 
-  <label>Subject
-    <input type="text" id="subject" placeholder="e.g. Welcome to our newsletter" />
-  </label>
+              <label>Subject
+                <input type="text" id="subject" placeholder="e.g. Welcome to our newsletter" />
+              </label>
 
-  <label>HTML body</label>
-  <textarea id="html_body" placeholder="Hi {{name}},&#10;&#10>Welcome!"></textarea>
-  <div class="small" style="margin-top:4px;">
-    Use <code>{{name}}</code> and <code>{{email}}</code> for personalization.
-  </div>
+              <label>HTML body</label>
+              <textarea id="html_body" placeholder="Hi {{name}},&#10;&#10>Welcome!"></textarea>
+              <div class="small" style="margin-top:4px;">
+                Use <code>{{name}}</code> and <code>{{email}}</code> for personalization.
+              </div>
 
-  <div class="flex-row">
-    <div>
-      <label>Speed (emails per minute)
-        <input type="number" id="speed_per_minute" value="60" />
-      </label>
-    </div>
-    <div>
-      <label>Contacts CSV
-        <input type="file" id="contacts_file" accept=".csv" />
-      </label>
-    </div>
-  </div>
+              <div class="flex-row">
+                <div>
+                  <label>Speed (emails per minute)
+                    <input type="number" id="speed_per_minute" value="60" />
+                  </label>
+                </div>
+                <div>
+                  <label>Contacts CSV
+                    <input type="file" id="contacts_file" accept=".csv" />
+                  </label>
+                </div>
+              </div>
 
-  <!-- TOS CONSENT -->
-  <div class="small" style="margin-top:8px; display:flex; gap:8px; align-items:flex-start;">
-    <input type="checkbox" id="tos_checkbox" style="margin-top:3px;" />
-    <label for="tos_checkbox" style="margin:0;">
-      <strong>I agree to the sending terms.</strong><br/>
-      By starting this campaign I confirm that I have permission to email these recipients,
-      that I will not send unsolicited or illegal spam, and that I am solely responsible
-      for the content and consequences of this campaign.
-    </label>
-  </div>
+              <!-- TOS CONSENT -->
+              <div class="small" style="margin-top:8px; display:flex; gap:8px; align-items:flex-start;">
+                <input type="checkbox" id="tos_checkbox" style="margin-top:3px;" />
+                <label for="tos_checkbox" style="margin:0;">
+                  <strong>I agree to the sending terms.</strong><br/>
+                  By starting this campaign I confirm that I have permission to email these recipients,
+                  that I will not send unsolicited or illegal spam, and that I am solely responsible
+                  for the content and consequences of this campaign.
+                </label>
+              </div>
 
-  <details class="small" style="margin-top:6px;">
-    <summary>View full sending terms</summary>
-    <ul style="margin-top:6px; padding-left:18px;">
-      <li>You use your own SMTP / email service (such as AWS SES). <strong>SendVerse</strong> only provides the software interface.</li>
-      <li>You will comply with all applicable anti-spam, privacy and data-protection laws and your SMTP provider’s policies.</li>
-      <li>You will only send to recipients who have valid consent or another lawful basis to receive your emails.</li>
-      <li>You will not send phishing, scams, malware, hate, or any other illegal or abusive content.</li>
-      <li>You are fully responsible for your content, your lists and the consequences of your sending.</li>
-      <li>Your SMTP provider may limit, block or terminate your account if you violate their rules; <strong>SendVerse</strong> is not responsible for such actions.</li>
-      <li><strong>SendVerse</strong> may suspend access if it reasonably believes its service is being used for spam or abuse.</li>
-      <li>No delivery is guaranteed; deliverability depends on your provider, reputation and recipient mailbox rules.</li>
-    </ul>
-  </details>
+              <details class="small" style="margin-top:6px;">
+                <summary>View full sending terms</summary>
+                <ul style="margin-top:6px; padding-left:18px;">
+                  <li>You use your own SMTP / email service (such as AWS SES). <strong>SendVerse</strong> only provides the software interface.</li>
+                  <li>You will comply with all applicable anti-spam, privacy and data-protection laws and your SMTP provider’s policies.</li>
+                  <li>You will only send to recipients who have valid consent or another lawful basis to receive your emails.</li>
+                  <li>You will not send phishing, scams, malware, hate, or any other illegal or abusive content.</li>
+                  <li>You are fully responsible for your content, your lists and the consequences of your sending.</li>
+                  <li>Your SMTP provider may limit, block or terminate your account if you violate their rules; <strong>SendVerse</strong> is not responsible for such actions.</li>
+                  <li><strong>SendVerse</strong> may suspend access if it reasonably believes its service is being used for spam or abuse.</li>
+                  <li>No delivery is guaranteed; deliverability depends on your provider, reputation and recipient mailbox rules.</li>
+                </ul>
+              </details>
 
-  <button class="btn btn-primary" id="start_campaign_btn">Start campaign</button>
-</div>
-
+              <button class="btn btn-primary" id="start_campaign_btn">Start campaign</button>
+            </div>
 
             <div class="card">
               <div class="small">Active campaign analytics</div>
@@ -726,7 +725,6 @@
       document.getElementById("login-screen").classList.remove("hidden");
       document.getElementById("login_password").value = "";
       clearError();
-      // reset some UI
       document.getElementById("log_box").textContent = "Waiting for campaign…";
       document.getElementById("campaigns_table_body").innerHTML =
         '<tr><td colspan="6" class="small" style="padding-top:6px;">No campaigns yet.</td></tr>';
@@ -765,10 +763,6 @@
       }
     }
 
-    function getStorageKey(prefix) {
-      return prefix + "_" + (CURRENT_USER || "anon");
-    }
-
     // ====== AUTH PERSISTENCE ======
     function saveAuth(username, token) {
       localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ username, token }));
@@ -791,7 +785,6 @@
           setLoggedOut();
           return;
         }
-        // fill username visually (password left empty for security)
         document.getElementById("login_username").value = parsed.username;
         setLoggedIn(data.user);
       } catch (e) {
@@ -842,34 +835,77 @@
       });
     });
 
-    // ====== SMTP PROFILES (localStorage) ======
-    function loadSmtpProfiles() {
-      const key = getStorageKey("sv_smtp_profiles");
-      const raw = localStorage.getItem(key);
-      let profiles = [];
-      if (raw) {
-        try { profiles = JSON.parse(raw); } catch {}
+    // ====== SMTP PROFILES (backend with PostgreSQL) ======
+    async function loadSmtpProfiles() {
+      if (!AUTH_HEADER) return;
+      try {
+        const res = await fetch("/smtp_profiles", {
+          headers: { "Authorization": AUTH_HEADER }
+        });
+        const profiles = await res.json();
+        renderSmtpProfiles(profiles);
+        populateSmtpSelect(profiles);
+      } catch (e) {
+        console.error("Failed to load SMTP profiles:", e);
       }
-      renderSmtpProfiles(profiles);
-      populateSmtpSelect(profiles);
     }
 
-    function saveSmtpProfiles(profiles) {
-      const key = getStorageKey("sv_smtp_profiles");
-      localStorage.setItem(key, JSON.stringify(profiles));
-      renderSmtpProfiles(profiles);
-      populateSmtpSelect(profiles);
+    async function saveSmtpProfile() {
+      const name = document.getElementById("smtp_profile_name").value.trim();
+      const host = document.getElementById("smtp_host").value.trim();
+      const port = parseInt(document.getElementById("smtp_port").value || "587", 10);
+      const use_tls = document.getElementById("smtp_use_tls").checked;
+      const username = document.getElementById("smtp_username").value.trim();
+      const password = document.getElementById("smtp_password").value;
+      const from_email = document.getElementById("from_email").value.trim();
+
+      if (!host || !from_email) {
+        alert("Host and From email are required.");
+        return;
+      }
+      if (!AUTH_HEADER) {
+        alert("Please login first.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("host", host);
+      formData.append("port", String(port));
+      formData.append("use_tls", use_tls ? "true" : "false");
+      formData.append("smtp_username", username);
+      formData.append("smtp_password", password);
+      formData.append("from_email", from_email);
+
+      try {
+        const res = await fetch("/smtp_profiles", {
+          method: "POST",
+          headers: { "Authorization": AUTH_HEADER },
+          body: formData
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          console.error("Error saving SMTP profile:", data);
+          alert("Error saving SMTP profile.");
+          return;
+        }
+        alert("SMTP profile saved.");
+        loadSmtpProfiles();
+      } catch (e) {
+        console.error("Failed to save SMTP profile:", e);
+        alert("Failed to save SMTP profile.");
+      }
     }
 
     function renderSmtpProfiles(profiles) {
       const tbody = document.getElementById("smtp_table_body");
       tbody.innerHTML = "";
-      if (!profiles.length) {
+      if (!profiles || !profiles.length) {
         tbody.innerHTML = '<tr><td colspan="3" class="small" style="padding-top:6px;">No profiles yet.</td></tr>';
       } else {
-        profiles.forEach((p, idx) => {
+        profiles.forEach((p) => {
           const tr = document.createElement("tr");
-          tr.dataset.index = idx;
+          tr.dataset.id = p.id;
           tr.innerHTML = `
             <td>${p.name || "(no name)"}</td>
             <td>${p.host}</td>
@@ -880,66 +916,54 @@
             document.getElementById("smtp_host").value = p.host || "";
             document.getElementById("smtp_port").value = p.port || 587;
             document.getElementById("smtp_use_tls").checked = !!p.use_tls;
-            document.getElementById("smtp_username").value = p.username || "";
-            document.getElementById("smtp_password").value = p.password || "";
+            document.getElementById("smtp_username").value = p.smtp_username || "";
+            document.getElementById("smtp_password").value = p.smtp_password || "";
             document.getElementById("from_email").value = p.from_email || "";
           });
           tbody.appendChild(tr);
         });
       }
-      document.getElementById("smtp_count_label").textContent = profiles.length + " saved";
+      document.getElementById("smtp_count_label").textContent = (profiles || []).length + " saved";
     }
 
     function populateSmtpSelect(profiles) {
       const sel = document.getElementById("create_smtp_select");
       sel.innerHTML = '<option value="">Select saved profile…</option>';
-      profiles.forEach((p, idx) => {
+      (profiles || []).forEach((p) => {
         const opt = document.createElement("option");
-        opt.value = String(idx);
-        opt.textContent = p.name || ("Profile " + (idx + 1));
+        opt.value = String(p.id);
+        opt.textContent = p.name || ("Profile " + p.id);
         sel.appendChild(opt);
       });
     }
 
     document.getElementById("save_smtp_btn").addEventListener("click", () => {
-      const name = document.getElementById("smtp_profile_name").value.trim();
-      const host = document.getElementById("smtp_host").value.trim();
-      const port = parseInt(document.getElementById("smtp_port").value || "587", 10);
-      const use_tls = document.getElementById("smtp_use_tls").checked;
-      const username = document.getElementById("smtp_username").value.trim();
-      const password = document.getElementById("smtp_password").value;
-      const from_email = document.getElementById("from_email").value.trim();
-      if (!host || !from_email) {
-        alert("Host and From email are required.");
-        return;
-      }
-      const key = getStorageKey("sv_smtp_profiles");
-      const raw = localStorage.getItem(key);
-      let profiles = [];
-      if (raw) {
-        try { profiles = JSON.parse(raw); } catch {}
-      }
-      profiles.push({ name, host, port, use_tls, username, password, from_email });
-      saveSmtpProfiles(profiles);
-      alert("SMTP profile saved.");
+      saveSmtpProfile();
     });
 
-    document.getElementById("create_smtp_select").addEventListener("change", () => {
-      const idx = document.getElementById("create_smtp_select").value;
-      if (!idx) return;
-      const key = getStorageKey("sv_smtp_profiles");
-      const raw = localStorage.getItem(key);
-      if (!raw) return;
-      let profiles = [];
-      try { profiles = JSON.parse(raw); } catch {}
-      const p = profiles[parseInt(idx, 10)];
-      if (!p) return;
-      document.getElementById("smtp_host").value = p.host || "";
-      document.getElementById("smtp_port").value = p.port || 587;
-      document.getElementById("smtp_use_tls").checked = !!p.use_tls;
-      document.getElementById("smtp_username").value = p.username || "";
-      document.getElementById("smtp_password").value = p.password || "";
-      document.getElementById("from_email").value = p.from_email || "";
+    document.getElementById("create_smtp_select").addEventListener("change", async () => {
+      const selectedId = document.getElementById("create_smtp_select").value;
+      if (!selectedId) return;
+      if (!AUTH_HEADER) {
+        alert("Please login first.");
+        return;
+      }
+      try {
+        const res = await fetch("/smtp_profiles", {
+          headers: { "Authorization": AUTH_HEADER }
+        });
+        const profiles = await res.json();
+        const p = (profiles || []).find(x => String(x.id) === String(selectedId));
+        if (!p) return;
+        document.getElementById("smtp_host").value = p.host || "";
+        document.getElementById("smtp_port").value = p.port || 587;
+        document.getElementById("smtp_use_tls").checked = !!p.use_tls;
+        document.getElementById("smtp_username").value = p.smtp_username || "";
+        document.getElementById("smtp_password").value = p.smtp_password || "";
+        document.getElementById("from_email").value = p.from_email || "";
+      } catch (e) {
+        console.error("Failed to reload SMTP profiles:", e);
+      }
     });
 
     // ====== CAMPAIGN LIST ======
@@ -1011,12 +1035,13 @@
         alert("Please fill SMTP host, from email, subject, and HTML body.");
         return;
       }
-        // NEW: enforce acceptance of SendVerse sending terms
-  const tosCheckbox = document.getElementById("tos_checkbox");
-  if (!tosCheckbox || !tosCheckbox.checked) {
-    alert("To start a campaign, you must agree to the SendVerse sending terms.");
-    return;
-  }
+
+      // enforce acceptance of SendVerse sending terms
+      const tosCheckbox = document.getElementById("tos_checkbox");
+      if (!tosCheckbox || !tosCheckbox.checked) {
+        alert("To start a campaign, you must agree to the SendVerse sending terms.");
+        return;
+      }
 
       const formData = new FormData();
       formData.append("subject", subject);
