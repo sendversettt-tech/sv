@@ -2,92 +2,542 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>Simple Bulk Mailer</title>
+  <title>SV Bulk Mailer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: Arial, sans-serif; max-width: 900px; margin: 20px auto; }
-    fieldset { margin-bottom: 20px; }
-    label { display: block; margin-top: 8px; }
-    input[type="text"], input[type="password"], textarea, input[type="number"] {
-      width: 100%; padding: 6px; box-sizing: border-box;
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 45%, #020617 100%);
+      color: #e5e7eb;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
     }
-    textarea { height: 150px; }
-    .row { display: flex; gap: 10px; }
-    .row > div { flex: 1; }
-    button { padding: 8px 16px; margin-top: 10px; cursor: pointer; }
-    #status { white-space: pre-line; background: #f7f7f7; padding: 10px; margin-top: 10px; }
+    .app-shell {
+      width: 100%;
+      max-width: 1100px;
+      background: linear-gradient(145deg, rgba(15,23,42,0.98), rgba(15,23,42,0.98));
+      border-radius: 24px;
+      box-shadow:
+        0 30px 80px rgba(0,0,0,0.65),
+        0 0 0 1px rgba(148,163,184,0.15);
+      overflow: hidden;
+      border: 1px solid rgba(148,163,184,0.3);
+    }
+    .app-header {
+      padding: 20px 28px;
+      border-bottom: 1px solid rgba(51,65,85,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: radial-gradient(circle at top left, rgba(56,189,248,0.15), transparent 55%);
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #22d3ee, #0369a1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+      color: white;
+      box-shadow: 0 10px 25px rgba(56,189,248,0.45);
+    }
+    .logo-text-title {
+      font-weight: 600;
+      font-size: 18px;
+      letter-spacing: 0.03em;
+    }
+    .logo-text-sub {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .header-right {
+      font-size: 13px;
+      color: #9ca3af;
+      text-align: right;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.5);
+      font-size: 11px;
+      color: #e5e7eb;
+      background: rgba(15,23,42,0.75);
+    }
+
+    .app-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
+      gap: 22px;
+      padding: 22px 24px 20px;
+    }
+    @media (max-width: 880px) {
+      .app-body {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, rgba(56,189,248,0.1), rgba(15,23,42,0.9));
+      border-radius: 16px;
+      padding: 18px 18px 16px;
+      border: 1px solid rgba(30,64,175,0.7);
+      box-shadow: 0 18px 30px rgba(15,23,42,0.7);
+    }
+    .card-muted {
+      background: linear-gradient(to bottom right, rgba(15,23,42,0.9), rgba(15,23,42,0.96));
+      border: 1px solid rgba(31,41,55,0.9);
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #f9fafb;
+    }
+    .card-desc {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      margin-top: 8px;
+      font-size: 12px;
+      color: #e5e7eb;
+    }
+    input[type="text"],
+    input[type="password"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      margin-top: 4px;
+      padding: 7px 9px;
+      border-radius: 8px;
+      border: 1px solid rgba(55,65,81,0.9);
+      background-color: rgba(15,23,42,0.95);
+      color: #e5e7eb;
+      font-size: 13px;
+      outline: none;
+      transition: border 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+    }
+    input::placeholder,
+    textarea::placeholder {
+      color: #6b7280;
+    }
+    input:focus,
+    textarea:focus {
+      border-color: #22d3ee;
+      box-shadow: 0 0 0 1px rgba(34,211,238,0.8);
+      background-color: rgba(15,23,42,1);
+    }
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+      max-height: 260px;
+    }
+    input[type="file"] {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #e5e7eb;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+    .row > div {
+      flex: 1;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      margin-top: 10px;
+      transition: transform 0.1s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+    .btn-primary {
+      background: linear-gradient(to right, #22c55e, #22d3ee);
+      color: #0f172a;
+      box-shadow: 0 12px 22px rgba(34,197,94,0.45);
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 28px rgba(34,197,94,0.55);
+    }
+    .btn-secondary {
+      background: rgba(15,23,42,0.9);
+      color: #e5e7eb;
+      border: 1px solid rgba(55,65,81,1);
+    }
+    .btn-secondary:hover {
+      background: rgba(15,23,42,1);
+      transform: translateY(-1px);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: #9ca3af;
+      border: 1px solid rgba(75,85,99,0.8);
+    }
+    .btn-ghost:hover {
+      color: #e5e7eb;
+      border-color: #e5e7eb;
+      transform: translateY(-1px);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(55,65,81,1);
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .status-card {
+      padding: 8px 9px;
+      border-radius: 12px;
+      background: radial-gradient(circle at top, rgba(15,23,42,0.95), rgba(15,23,42,1));
+      border: 1px solid rgba(31,41,55,0.9);
+      font-size: 12px;
+    }
+    .status-label {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-bottom: 3px;
+    }
+    .status-value {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .status-log {
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(15,23,42,0.9);
+      border: 1px dashed rgba(55,65,81,0.9);
+      max-height: 160px;
+      overflow: auto;
+      font-size: 11px;
+      color: #d1d5db;
+      white-space: pre-line;
+    }
+
+    .login-only {
+      max-width: 360px;
+      margin: 26px auto;
+    }
+
+    .hidden { display: none; }
+
+    .small {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+    .tag-green { color: #4ade80; }
+    .tag-red { color: #f97373; }
+    .tag-blue { color: #38bdf8; }
+
+    .user-label {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .user-label span {
+      color: #e5e7eb;
+      font-weight: 500;
+    }
   </style>
 </head>
 <body>
-  <h1>Bulk Mailer</h1>
-
-  <fieldset>
-    <legend>Login</legend>
-    <label>Username: <input type="text" id="username" value="user1" /></label>
-    <label>Password: <input type="password" id="password" value="pass1" /></label>
-    <p style="font-size: 0.9em;">These must match the users defined in <code>main.py</code>.</p>
-  </fieldset>
-
-  <fieldset>
-    <legend>SMTP (AWS SES)</legend>
-    <label>SMTP Host (e.g. email-smtp.ap-south-1.amazonaws.com)
-      <input type="text" id="smtp_host" />
-    </label>
-    <label>SMTP Port (587 or 465)
-      <input type="number" id="smtp_port" value="587" />
-    </label>
-    <label>SMTP Username
-      <input type="text" id="smtp_username" />
-    </label>
-    <label>SMTP Password
-      <input type="password" id="smtp_password" />
-    </label>
-    <label><input type="checkbox" id="smtp_use_tls" checked /> Use TLS</label>
-    <label>From Email (must be verified in SES)
-      <input type="text" id="from_email" />
-    </label>
-  </fieldset>
-
-  <fieldset>
-    <legend>Campaign</legend>
-    <label>Subject:
-      <input type="text" id="subject" />
-    </label>
-    <label>HTML Body (supports {{name}} and {{email}} placeholders):</label>
-    <textarea id="html_body"></textarea>
-    <label>Speed (emails per minute):
-      <input type="number" id="speed_per_minute" value="60" />
-    </label>
-    <label>Contacts CSV (must have "email" column, optional "name"):</label>
-    <input type="file" id="contacts_file" accept=".csv" />
-    <button id="start_btn">Start Campaign</button>
-  </fieldset>
-
-  <fieldset>
-    <legend>Campaign Status</legend>
-    <label>Campaign ID:
-      <input type="text" id="campaign_id" />
-    </label>
-    <div class="row">
-      <div><button id="check_status_btn">Check Status</button></div>
-      <div><button id="stop_campaign_btn">Stop Campaign</button></div>
+  <div class="app-shell">
+    <div class="app-header">
+      <div class="logo">
+        <div class="logo-badge">SV</div>
+        <div>
+          <div class="logo-text-title">SV Bulk Mailer</div>
+          <div class="logo-text-sub">Send via your own SMTP &amp; SES</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="badge">
+          <span>✓ No shared IPs</span>
+          <span>•</span>
+          <span>SMTP per user</span>
+        </div>
+        <div style="margin-top: 6px; font-size: 11px;">
+          <span id="user-display" class="user-label">Not logged in</span>
+        </div>
+      </div>
     </div>
-    <div id="status"></div>
-  </fieldset>
+
+    <div class="app-body">
+      <!-- LEFT SIDE: LOGIN + MAIN FORM -->
+      <div>
+        <!-- LOGIN CARD -->
+        <div class="card login-only" id="login-card">
+          <div class="card-title">
+            Login
+            <span class="pill">Manual accounts in <code>main.py</code></span>
+          </div>
+          <div class="card-desc">
+            Enter the username &amp; password provided by your provider. Once logged in,
+            you can configure SMTP and start campaigns.
+          </div>
+
+          <label>Username
+            <input type="text" id="username" placeholder="e.g. client1" />
+          </label>
+          <label>Password
+            <input type="password" id="password" placeholder="••••••••" />
+          </label>
+
+          <button class="btn btn-primary" id="login-btn">
+            Login
+          </button>
+
+          <div class="small" style="margin-top: 10px;">
+            Having trouble? Check with your provider that your login is added in <code>USERS</code>.
+          </div>
+        </div>
+
+        <!-- MAIN APP (hidden until login) -->
+        <div id="app-main" class="hidden">
+          <div class="card card-muted">
+            <div class="card-title">
+              SMTP settings
+              <span class="pill">AWS SES / Other SMTP</span>
+            </div>
+            <div class="card-desc">
+              Each user sends from their own SMTP credentials. Make sure your
+              <span class="tag-blue">From email</span> is verified in SES and limits are approved.
+            </div>
+
+            <label>SMTP Host
+              <input type="text" id="smtp_host" placeholder="email-smtp.ap-south-1.amazonaws.com" />
+            </label>
+            <div class="row">
+              <div>
+                <label>SMTP Port
+                  <input type="number" id="smtp_port" value="587" />
+                </label>
+              </div>
+              <div>
+                <label>Use TLS
+                  <div style="margin-top: 6px;">
+                    <input type="checkbox" id="smtp_use_tls" checked /> <span class="small">Recommended</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+            <label>SMTP Username
+              <input type="text" id="smtp_username" placeholder="SMTP username from SES" />
+            </label>
+            <label>SMTP Password
+              <input type="password" id="smtp_password" placeholder="SMTP password from SES" />
+            </label>
+            <label>From Email
+              <input type="text" id="from_email" placeholder="verified@yourdomain.com" />
+            </label>
+          </div>
+
+          <div class="card card-muted" style="margin-top: 16px;">
+            <div class="card-title">
+              Campaign
+              <span class="pill">Supports {{name}} and {{email}}</span>
+            </div>
+            <div class="card-desc">
+              Upload a CSV with at least an <code>email</code> column (optional: <code>name</code>).
+              Use <span class="tag-blue">{{name}}</span> and <span class="tag-blue">{{email}}</span> in your HTML.
+            </div>
+
+            <label>Subject
+              <input type="text" id="subject" placeholder="e.g. Welcome to our newsletter" />
+            </label>
+
+            <label>HTML body</label>
+            <textarea id="html_body" placeholder="Hi {{name}},&#10;&#10>Welcome!"></textarea>
+
+            <div class="row">
+              <div>
+                <label>Speed (emails per minute)
+                  <input type="number" id="speed_per_minute" value="60" />
+                </label>
+              </div>
+              <div>
+                <label>Contacts CSV
+                  <input type="file" id="contacts_file" accept=".csv" />
+                </label>
+              </div>
+            </div>
+
+            <button class="btn btn-primary" id="start_btn">Start campaign</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT SIDE: STATUS PANEL -->
+      <div>
+        <div class="card card-muted">
+          <div class="card-title">
+            Campaign status
+            <span class="pill">Live stats</span>
+          </div>
+          <div class="card-desc">
+            After starting a campaign, use the ID below to monitor sending. You can also stop a running send.
+          </div>
+
+          <label>Campaign ID
+            <input type="text" id="campaign_id" placeholder="Will be filled after you start a campaign" />
+          </label>
+
+          <div class="row" style="margin-top: 8px;">
+            <div>
+              <button class="btn btn-secondary" id="check_status_btn">Refresh status</button>
+            </div>
+            <div>
+              <button class="btn btn-ghost" id="stop_campaign_btn">Stop campaign</button>
+            </div>
+          </div>
+
+          <div class="status-grid">
+            <div class="status-card">
+              <div class="status-label">Total recipients</div>
+              <div class="status-value" id="stat_total">0</div>
+            </div>
+            <div class="status-card">
+              <div class="status-label">Processed</div>
+              <div class="status-value" id="stat_processed">0</div>
+            </div>
+            <div class="status-card">
+              <div class="status-label">Delivered (SMTP OK)</div>
+              <div class="status-value tag-green" id="stat_delivered">0</div>
+            </div>
+            <div class="status-card">
+              <div class="status-label">Bounced / Failed</div>
+              <div class="status-value tag-red" id="stat_bounced">0</div>
+            </div>
+          </div>
+
+          <div class="status-log" id="status_log">
+            Waiting for campaign...
+          </div>
+        </div>
+
+        <div class="card card-muted" style="margin-top: 12px;">
+          <div class="card-title">
+            Notes
+          </div>
+          <div class="small">
+            • <span class="tag-green">Delivered</span> means SMTP accepted the email.<br/>
+            • True mailbox bounces (later) require SES SNS + database – this app only tracks send-time results.<br/>
+            • Each user uses their own SMTP / SES account and limits.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script>
+    let loggedInUser = null;
+
     function getAuthHeader() {
       const u = document.getElementById("username").value;
       const p = document.getElementById("password").value;
+      if (!u || !p) return null;
       const token = btoa(u + ":" + p);
       return "Basic " + token;
     }
 
-    function logStatus(msg) {
-      const el = document.getElementById("status");
-      el.textContent += msg + "\n";
+    function setLoggedIn(user) {
+      loggedInUser = user;
+      document.getElementById("login-card").classList.add("hidden");
+      document.getElementById("app-main").classList.remove("hidden");
+      const userDisplay = document.getElementById("user-display");
+      userDisplay.innerHTML = 'Logged in as <span>' + user + '</span>';
     }
 
+    function logStatus(msg, replace=false) {
+      const el = document.getElementById("status_log");
+      if (replace) {
+        el.textContent = msg + "\n";
+      } else {
+        if (el.textContent.trim() === "Waiting for campaign...") {
+          el.textContent = "";
+        }
+        el.textContent += msg + "\n";
+        el.scrollTop = el.scrollHeight;
+      }
+    }
+
+    // LOGIN HANDLER
+    document.getElementById("login-btn").addEventListener("click", async () => {
+      const header = getAuthHeader();
+      if (!header) {
+        alert("Please enter username and password.");
+        return;
+      }
+      try {
+        const res = await fetch("/me", {
+          headers: { "Authorization": header }
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          alert("Login failed: " + (data.detail || JSON.stringify(data)));
+          return;
+        }
+        setLoggedIn(data.user);
+        logStatus("Logged in as " + data.user + ". Start a campaign to see status here.", true);
+      } catch (e) {
+        alert("Login request failed: " + e.toString());
+      }
+    });
+
+    // START CAMPAIGN
     document.getElementById("start_btn").addEventListener("click", async () => {
+      if (!loggedInUser) {
+        alert("Please login first.");
+        return;
+      }
+
       const subject = document.getElementById("subject").value;
       const htmlBody = document.getElementById("html_body").value;
       const smtpHost = document.getElementById("smtp_host").value;
@@ -100,6 +550,10 @@
       const fileInput = document.getElementById("contacts_file");
       if (!fileInput.files[0]) {
         alert("Please choose a CSV file.");
+        return;
+      }
+      if (!subject || !htmlBody || !smtpHost || !fromEmail) {
+        alert("Please fill SMTP, subject, and HTML body.");
         return;
       }
 
@@ -115,11 +569,18 @@
       formData.append("speed_per_minute", speed);
       formData.append("contacts_file", fileInput.files[0]);
 
+      const header = getAuthHeader();
+      if (!header) {
+        alert("Missing auth header. Please login again.");
+        return;
+      }
+
       try {
+        logStatus("Starting campaign...", true);
         const res = await fetch("/start_campaign", {
           method: "POST",
           headers: {
-            "Authorization": getAuthHeader()
+            "Authorization": header
           },
           body: formData
         });
@@ -128,52 +589,81 @@
         if (!res.ok) {
           logStatus("Error: " + (data.detail || JSON.stringify(data)));
         } else {
-          logStatus("Campaign started. ID: " + data.campaign_id + ", total contacts: " + data.total_contacts);
+          logStatus("Campaign started. ID: " + data.campaign_id + " | total contacts: " + data.total_contacts);
           document.getElementById("campaign_id").value = data.campaign_id;
+          document.getElementById("stat_total").textContent = data.total_contacts;
+          document.getElementById("stat_processed").textContent = "0";
+          document.getElementById("stat_delivered").textContent = "0";
+          document.getElementById("stat_bounced").textContent = "0";
         }
       } catch (e) {
         logStatus("Request failed: " + e.toString());
       }
     });
 
+    // CHECK STATUS
     document.getElementById("check_status_btn").addEventListener("click", async () => {
+      if (!loggedInUser) {
+        alert("Please login first.");
+        return;
+      }
       const cid = document.getElementById("campaign_id").value.trim();
       if (!cid) {
-        alert("Enter campaign id first.");
+        alert("Enter campaign ID first.");
+        return;
+      }
+      const header = getAuthHeader();
+      if (!header) {
+        alert("Missing auth header. Please login again.");
         return;
       }
       try {
         const res = await fetch("/campaign_status/" + encodeURIComponent(cid), {
           headers: {
-            "Authorization": getAuthHeader()
+            "Authorization": header
           }
         });
         const data = await res.json();
         if (!res.ok) {
           logStatus("Error: " + (data.detail || JSON.stringify(data)));
         } else {
-          logStatus("Status: " + data.status + " | " +
-                    "Processed: " + data.processed + "/" + data.total +
-                    " | Sent: " + data.sent +
-                    " | Failed: " + data.failed +
-                    (data.last_error ? " | Last error: " + data.last_error : ""));
+          document.getElementById("stat_total").textContent = data.total;
+          document.getElementById("stat_processed").textContent = data.processed;
+          document.getElementById("stat_delivered").textContent = data.delivered;
+          document.getElementById("stat_bounced").textContent = data.bounced;
+          const line = "Status: " + data.status +
+                       " | Processed: " + data.processed + "/" + data.total +
+                       " | Delivered: " + data.delivered +
+                       " | Bounced/Failed: " + data.bounced +
+                       (data.last_error ? " | Last error: " + data.last_error : "");
+          logStatus(line);
         }
       } catch (e) {
         logStatus("Request failed: " + e.toString());
       }
     });
 
+    // STOP CAMPAIGN
     document.getElementById("stop_campaign_btn").addEventListener("click", async () => {
+      if (!loggedInUser) {
+        alert("Please login first.");
+        return;
+      }
       const cid = document.getElementById("campaign_id").value.trim();
       if (!cid) {
-        alert("Enter campaign id first.");
+        alert("Enter campaign ID first.");
+        return;
+      }
+      const header = getAuthHeader();
+      if (!header) {
+        alert("Missing auth header. Please login again.");
         return;
       }
       try {
         const res = await fetch("/stop_campaign/" + encodeURIComponent(cid), {
           method: "POST",
           headers: {
-            "Authorization": getAuthHeader()
+            "Authorization": header
           }
         });
         const data = await res.json();
@@ -189,4 +679,3 @@
   </script>
 </body>
 </html>
-
