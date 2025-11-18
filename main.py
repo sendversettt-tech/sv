@@ -24,7 +24,9 @@ USERS = {
     # "anotheruser": "anotherpass",
 }
 
-# ========= IN-MEMORY CAMPAIGNS (live sending) =========
+# ========= IN-MEMORY CAMPAIGNS (for live sending only) =========
+# We still use this for the sending threads,
+# but the canonical data is stored in PostgreSQL.
 CAMPAIGNS: Dict[str, Dict[str, Any]] = {}
 _campaign_counter = 0
 _campaign_lock = threading.Lock()
@@ -40,12 +42,18 @@ def get_conn():
 
 
 def init_db():
+    """
+    Create required tables if they don't exist:
+      - smtp_profiles
+      - campaigns
+    """
     if not DATABASE_URL:
-        print("WARNING: DATABASE_URL not set; SMTP profiles won't persist.")
+        print("WARNING: DATABASE_URL not set; DB features will not work.")
         return
     conn = get_conn()
     try:
         cur = conn.cursor()
+        # SMTP profiles table
         cur.execute(
             """
             CREATE TABLE IF NOT EXISTS smtp_profiles (
@@ -63,6 +71,31 @@ def init_db():
             CREATE INDEX IF NOT EXISTS idx_smtp_profiles_username ON smtp_profiles(username);
             """
         )
+
+        # Campaigns table (persistent history)
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS campaigns (
+                id SERIAL PRIMARY KEY,
+                campaign_id TEXT UNIQUE NOT NULL,
+                username TEXT NOT NULL,
+                subject TEXT,
+                status TEXT NOT NULL,
+                total INTEGER NOT NULL DEFAULT 0,
+                processed INTEGER NOT NULL DEFAULT 0,
+                sent INTEGER NOT NULL DEFAULT 0,
+                failed INTEGER NOT NULL DEFAULT 0,
+                delivered INTEGER NOT NULL DEFAULT 0,
+                bounced INTEGER NOT NULL DEFAULT 0,
+                last_error TEXT,
+                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            );
+            CREATE INDEX IF NOT EXISTS idx_campaigns_username ON campaigns(username);
+            CREATE INDEX IF NOT EXISTS idx_campaigns_campaign_id ON campaigns(campaign_id);
+            """
+        )
+
         conn.commit()
         cur.close()
     finally:
@@ -191,8 +224,89 @@ def list_smtp_profiles(current_user: str = Depends(get_current_user)):
         conn.close()
 
 
-# ========= CAMPAIGN LOGIC (in-memory live, list via API) =========
+# ========= CAMPAIGN DB HELPERS =========
+def create_campaign_db(
+    campaign_id: str,
+    username: str,
+    subject: str,
+    total: int,
+):
+    conn = get_conn()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            INSERT INTO campaigns (campaign_id, username, subject, status, total, processed,
+                                   sent, failed, delivered, bounced, last_error)
+            VALUES (%s, %s, %s, %s, %s, 0, 0, 0, 0, 0, NULL)
+            """,
+            (campaign_id, username, subject, "queued", total),
+        )
+        conn.commit()
+        cur.close()
+    finally:
+        conn.close()
+
+
+def update_campaign_db_stats(campaign_id: str, camp: Dict[str, Any]):
+    conn = get_conn()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            UPDATE campaigns
+            SET status = %s,
+                processed = %s,
+                sent = %s,
+                failed = %s,
+                delivered = %s,
+                bounced = %s,
+                last_error = %s,
+                updated_at = NOW()
+            WHERE campaign_id = %s
+            """,
+            (
+                camp["status"],
+                camp["processed"],
+                camp["sent"],
+                camp["failed"],
+                camp["delivered"],
+                camp["bounced"],
+                camp["last_error"],
+                campaign_id,
+            ),
+        )
+        conn.commit()
+        cur.close()
+    finally:
+        conn.close()
+
+
+def set_campaign_db_status(campaign_id: str, username: str, new_status: str):
+    conn = get_conn()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            UPDATE campaigns
+            SET status = %s,
+                updated_at = NOW()
+            WHERE campaign_id = %s AND username = %s
+            """,
+            (new_status, campaign_id, username),
+        )
+        conn.commit()
+        cur.close()
+    finally:
+        conn.close()
+
+
+# ========= CAMPAIGN SENDING LOGIC =========
 def run_campaign(campaign_id: str):
+    """
+    Worker thread: sends emails and updates the in-memory structure
+    plus the PostgreSQL campaigns table.
+    """
     camp = CAMPAIGNS.get(campaign_id)
     if not camp:
         return
@@ -202,6 +316,7 @@ def run_campaign(campaign_id: str):
     delay = 60.0 / speed if speed > 0 else 0.0
 
     camp["status"] = "running"
+    update_campaign_db_stats(campaign_id, camp)
 
     for idx, contact in enumerate(contacts):
         if camp["status"] == "stopped":
@@ -229,11 +344,15 @@ def run_campaign(campaign_id: str):
 
         camp["processed"] += 1
 
+        # Persist stats after each email (simple; you can later batch this)
+        update_campaign_db_stats(campaign_id, camp)
+
         if delay > 0 and idx < len(contacts) - 1:
             time.sleep(delay)
 
     if camp["status"] != "stopped":
         camp["status"] = "finished"
+    update_campaign_db_stats(campaign_id, camp)
 
 
 @app.post("/start_campaign")
@@ -258,6 +377,7 @@ async def start_campaign(
         _campaign_counter += 1
         campaign_id = f"{current_user}-{_campaign_counter}"
 
+    # In-memory structure for the worker
     CAMPAIGNS[campaign_id] = {
         "user": current_user,
         "subject": subject,
@@ -281,6 +401,10 @@ async def start_campaign(
         "total": len(contacts),
     }
 
+    # Create row in DB for persistent history
+    create_campaign_db(campaign_id, current_user, subject, len(contacts))
+
+    # Start worker thread
     t = threading.Thread(target=run_campaign, args=(campaign_id,), daemon=True)
     t.start()
 
@@ -293,60 +417,99 @@ async def start_campaign(
 
 @app.get("/campaign_status/{campaign_id}")
 def campaign_status(campaign_id: str, current_user: str = Depends(get_current_user)):
-    camp = CAMPAIGNS.get(campaign_id)
-    if not camp or camp["user"] != current_user:
-        raise HTTPException(status_code=404, detail="Campaign not found")
+    """
+    Always read from DB for persistent stats.
+    """
+    conn = get_conn()
+    try:
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cur.execute(
+            """
+            SELECT campaign_id, subject, status, total, processed, sent, failed,
+                   delivered, bounced, last_error, EXTRACT(EPOCH FROM created_at) AS created_at
+            FROM campaigns
+            WHERE campaign_id = %s AND username = %s
+            """,
+            (campaign_id, current_user),
+        )
+        row = cur.fetchone()
+        cur.close()
+        if not row:
+            raise HTTPException(status_code=404, detail="Campaign not found")
 
-    return {
-        "campaign_id": campaign_id,
-        "subject": camp["subject"],
-        "status": camp["status"],
-        "processed": camp["processed"],
-        "sent": camp["sent"],
-        "failed": camp["failed"],
-        "delivered": camp["delivered"],
-        "bounced": camp["bounced"],
-        "last_error": camp["last_error"],
-        "total": camp["total"],
-        "created_at": camp["created_at"],
-    }
+        return {
+            "campaign_id": row["campaign_id"],
+            "subject": row["subject"],
+            "status": row["status"],
+            "processed": row["processed"],
+            "sent": row["sent"],
+            "failed": row["failed"],
+            "delivered": row["delivered"],
+            "bounced": row["bounced"],
+            "last_error": row["last_error"],
+            "total": row["total"],
+            "created_at": row["created_at"],
+        }
+    finally:
+        conn.close()
 
 
 @app.post("/stop_campaign/{campaign_id}")
 def stop_campaign(campaign_id: str, current_user: str = Depends(get_current_user)):
+    # Stop in-memory worker if present
     camp = CAMPAIGNS.get(campaign_id)
-    if not camp or camp["user"] != current_user:
-        raise HTTPException(status_code=404, detail="Campaign not found")
+    if camp and camp["user"] == current_user:
+        camp["status"] = "stopped"
+        update_campaign_db_stats(campaign_id, camp)
+    else:
+        # No in-memory worker (maybe after restart); still mark as stopped in DB
+        set_campaign_db_status(campaign_id, current_user, "stopped")
 
-    camp["status"] = "stopped"
     return {"message": "Campaign stop requested", "campaign_id": campaign_id}
 
 
 @app.get("/campaigns")
 def list_campaigns(current_user: str = Depends(get_current_user)):
-    """Return all campaigns for this user (current server session)."""
-    result = []
-    for cid, camp in CAMPAIGNS.items():
-        if camp["user"] != current_user:
-            continue
-        result.append({
-            "campaign_id": cid,
-            "subject": camp["subject"],
-            "status": camp["status"],
-            "total": camp["total"],
-            "delivered": camp["delivered"],
-            "bounced": camp["bounced"],
-            "processed": camp["processed"],
-            "created_at": camp["created_at"],
-        })
-    result.sort(key=lambda c: c["created_at"], reverse=True)
-    return result
+    """
+    Return all campaigns for this user from DB (persistent history).
+    """
+    conn = get_conn()
+    try:
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cur.execute(
+            """
+            SELECT campaign_id, subject, status, total, delivered, bounced, processed,
+                   EXTRACT(EPOCH FROM created_at) AS created_at
+            FROM campaigns
+            WHERE username = %s
+            ORDER BY created_at DESC
+            """,
+            (current_user,),
+        )
+        rows = cur.fetchall()
+        cur.close()
+
+        result = []
+        for row in rows:
+            result.append({
+                "campaign_id": row["campaign_id"],
+                "subject": row["subject"],
+                "status": row["status"],
+                "total": row["total"],
+                "delivered": row["delivered"],
+                "bounced": row["bounced"],
+                "processed": row["processed"],
+                "created_at": row["created_at"],
+            })
+        return result
+    finally:
+        conn.close()
 
 
 @app.get("/", response_class=HTMLResponse)
 def root():
-    try:
-        with open("index.html", "r", encoding="utf-8") as f:
-            return f.read()
-    except FileNotFoundError:
-        return HTMLResponse("<h1>SendVerse backend is running.</h1>", status_code=200)
+  try:
+      with open("index.html", "r", encoding="utf-8") as f:
+          return f.read()
+  except FileNotFoundError:
+      return HTMLResponse("<h1>SendVerse backend is running.</h1>", status_code=200)
