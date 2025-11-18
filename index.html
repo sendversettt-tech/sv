@@ -432,7 +432,7 @@
       <div class="logo">
         <div class="logo-badge">SV</div>
         <div>
-          <div class="logo-text-title">SV Bulk Mailer</div>
+          <div class="logo-text-title">SendVerse</div>
           <div class="logo-text-sub">SMTP based campaign engine</div>
         </div>
       </div>
@@ -565,37 +565,63 @@
             </div>
 
             <div class="card">
-              <label>SMTP profile
-                <select id="create_smtp_select">
-                  <option value="">Select saved profile…</option>
-                </select>
-              </label>
+  <label>SMTP profile
+    <select id="create_smtp_select">
+      <option value="">Select saved profile…</option>
+    </select>
+  </label>
 
-              <label>Subject
-                <input type="text" id="subject" placeholder="e.g. Welcome to our newsletter" />
-              </label>
+  <label>Subject
+    <input type="text" id="subject" placeholder="e.g. Welcome to our newsletter" />
+  </label>
 
-              <label>HTML body</label>
-              <textarea id="html_body" placeholder="Hi {{name}},&#10;&#10>Welcome!"></textarea>
-              <div class="small" style="margin-top:4px;">
-                Use <code>{{name}}</code> and <code>{{email}}</code> for personalization.
-              </div>
+  <label>HTML body</label>
+  <textarea id="html_body" placeholder="Hi {{name}},&#10;&#10>Welcome!"></textarea>
+  <div class="small" style="margin-top:4px;">
+    Use <code>{{name}}</code> and <code>{{email}}</code> for personalization.
+  </div>
 
-              <div class="flex-row">
-                <div>
-                  <label>Speed (emails per minute)
-                    <input type="number" id="speed_per_minute" value="60" />
-                  </label>
-                </div>
-                <div>
-                  <label>Contacts CSV
-                    <input type="file" id="contacts_file" accept=".csv" />
-                  </label>
-                </div>
-              </div>
+  <div class="flex-row">
+    <div>
+      <label>Speed (emails per minute)
+        <input type="number" id="speed_per_minute" value="60" />
+      </label>
+    </div>
+    <div>
+      <label>Contacts CSV
+        <input type="file" id="contacts_file" accept=".csv" />
+      </label>
+    </div>
+  </div>
 
-              <button class="btn btn-primary" id="start_campaign_btn">Start campaign</button>
-            </div>
+  <!-- TOS CONSENT -->
+  <div class="small" style="margin-top:8px; display:flex; gap:8px; align-items:flex-start;">
+    <input type="checkbox" id="tos_checkbox" style="margin-top:3px;" />
+    <label for="tos_checkbox" style="margin:0;">
+      <strong>I agree to the sending terms.</strong><br/>
+      By starting this campaign I confirm that I have permission to email these recipients,
+      that I will not send unsolicited or illegal spam, and that I am solely responsible
+      for the content and consequences of this campaign.
+    </label>
+  </div>
+
+  <details class="small" style="margin-top:6px;">
+    <summary>View full sending terms</summary>
+    <ul style="margin-top:6px; padding-left:18px;">
+      <li>You use your own SMTP / email service (such as AWS SES). <strong>SendVerse</strong> only provides the software interface.</li>
+      <li>You will comply with all applicable anti-spam, privacy and data-protection laws and your SMTP provider’s policies.</li>
+      <li>You will only send to recipients who have valid consent or another lawful basis to receive your emails.</li>
+      <li>You will not send phishing, scams, malware, hate, or any other illegal or abusive content.</li>
+      <li>You are fully responsible for your content, your lists and the consequences of your sending.</li>
+      <li>Your SMTP provider may limit, block or terminate your account if you violate their rules; <strong>SendVerse</strong> is not responsible for such actions.</li>
+      <li><strong>SendVerse</strong> may suspend access if it reasonably believes its service is being used for spam or abuse.</li>
+      <li>No delivery is guaranteed; deliverability depends on your provider, reputation and recipient mailbox rules.</li>
+    </ul>
+  </details>
+
+  <button class="btn btn-primary" id="start_campaign_btn">Start campaign</button>
+</div>
+
 
             <div class="card">
               <div class="small">Active campaign analytics</div>
@@ -985,6 +1011,12 @@
         alert("Please fill SMTP host, from email, subject, and HTML body.");
         return;
       }
+        // NEW: enforce acceptance of SendVerse sending terms
+  const tosCheckbox = document.getElementById("tos_checkbox");
+  if (!tosCheckbox || !tosCheckbox.checked) {
+    alert("To start a campaign, you must agree to the SendVerse sending terms.");
+    return;
+  }
 
       const formData = new FormData();
       formData.append("subject", subject);
