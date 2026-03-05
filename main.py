@@ -14,11 +14,14 @@ import smtplib
 import psycopg2
 import psycopg2.extras
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+
 def get_conn():
-    if not DATABASE_URL:
-        raise HTTPException(status_code=500, detail="DATABASE_URL not configured")
-    return psycopg2.connect(DATABASE_URL, sslmode="require")
+    database_url = os.environ.get("DATABASE_URL")
+
+    if not database_url:
+        raise Exception("DATABASE_URL not configured")
+
+    return psycopg2.connect(database_url, sslmode="require")
 app = FastAPI()
 security = HTTPBasic()
 
