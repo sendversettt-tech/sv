@@ -578,6 +578,12 @@
 
               <label>HTML body</label>
               <textarea id="html_body" placeholder="Hi {{name}},&#10;&#10>Welcome!"></textarea>
+              <label>Attachment (optional)
+                <input type="file" id="attachment_file" />
+              </label>
+              <div class="small">
+                You can attach one file (PDF, image, document, etc.)
+              </div>
               <div class="small" style="margin-top:4px;">
                 Use <code>{{name}}</code> and <code>{{email}}</code> for personalization.
               </div>
@@ -1039,6 +1045,7 @@
       const fromEmail = document.getElementById("from_email").value.trim();
       const speed = document.getElementById("speed_per_minute").value || "60";
       const fileInput = document.getElementById("contacts_file");
+      const attachmentInput = document.getElementById("attachment_file");
       if (!fileInput.files[0]) {
         alert("Please choose a CSV file.");
         return;
@@ -1066,6 +1073,10 @@
       formData.append("from_email", fromEmail);
       formData.append("speed_per_minute", speed);
       formData.append("contacts_file", fileInput.files[0]);
+
+      if (attachmentInput.files.length > 0) {
+        formData.append("attachment_file", attachmentInput.files[0]);
+      }
 
       try {
         logLine("Starting campaign...", true);
