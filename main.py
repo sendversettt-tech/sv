@@ -155,7 +155,7 @@ def send_email_smtp(
         )
         msg.attach(part)
 
-    with smtplib.SMTP(host, port, timeout=30) as server:
+    with smtplib.SMTP(host, port, timeout=60) as server:
         if use_tls:
             server.starttls()
         if username and password:
@@ -286,47 +286,67 @@ def run_campaign(campaign_id):
     delay = 60.0 / speed if speed > 0 else 0
 
     camp["status"] = "running"
-
     update_campaign_record(campaign_id, camp)
 
-    for idx, contact in enumerate(contacts):
+    try:
 
-        if camp["status"] == "stopped":
-            break
+        with smtplib.SMTP(camp["smtp_host"], camp["smtp_port"], timeout=60) as server:
 
-        try:
+            if camp["smtp_use_tls"]:
+                server.starttls()
 
-            html = render_template(camp["html_body"], contact)
+            if camp["smtp_username"] and camp["smtp_password"]:
+                server.login(camp["smtp_username"], camp["smtp_password"])
 
-            send_email_smtp(
-                camp["smtp_host"],
-                camp["smtp_port"],
-                camp["smtp_username"],
-                camp["smtp_password"],
-                camp["smtp_use_tls"],
-                camp["from_email"],
-                contact["email"],
-                camp["subject"],
-                html,
-                camp.get("attachment_bytes"),
-                camp.get("attachment_name")
-            )
+            for idx, contact in enumerate(contacts):
 
-            camp["sent"] += 1
-            camp["delivered"] += 1
+                if camp["status"] == "stopped":
+                    break
 
-        except Exception as e:
+                try:
 
-            camp["failed"] += 1
-            camp["bounced"] += 1
-            camp["last_error"] = str(e)
+                    html = render_template(camp["html_body"], contact)
 
-        camp["processed"] += 1
+                    msg = MIMEMultipart()
+                    msg["Subject"] = camp["subject"]
+                    msg["From"] = camp["from_email"]
+                    msg["To"] = contact["email"]
 
-        update_campaign_record(campaign_id, camp)
+                    msg.attach(MIMEText(html, "html"))
 
-        if delay > 0 and idx < len(contacts) - 1:
-            time.sleep(delay)
+                    if camp.get("attachment_bytes"):
+                        part = MIMEBase("application", "octet-stream")
+                        part.set_payload(camp["attachment_bytes"])
+                        encoders.encode_base64(part)
+                        part.add_header(
+                            "Content-Disposition",
+                            f'attachment; filename="{camp.get("attachment_name")}"'
+                        )
+                        msg.attach(part)
+
+                    server.sendmail(
+                        camp["from_email"],
+                        [contact["email"]],
+                        msg.as_string()
+                    )
+
+                    camp["sent"] += 1
+                    camp["delivered"] += 1
+
+                except Exception as e:
+
+                    camp["failed"] += 1
+                    camp["bounced"] += 1
+                    camp["last_error"] = str(e)
+
+                camp["processed"] += 1
+                update_campaign_record(campaign_id, camp)
+
+                if delay > 0 and idx < len(contacts) - 1:
+                    time.sleep(delay)
+
+    except Exception as e:
+        camp["last_error"] = str(e)
 
     if camp["status"] != "stopped":
         camp["status"] = "finished"
