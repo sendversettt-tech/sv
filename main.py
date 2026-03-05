@@ -4,6 +4,7 @@ import io
 import threading
 import time
 from typing import Dict, Any, List
+from fastapi.responses import Response
 
 from fastapi import FastAPI, UploadFile, File, Form, Depends, HTTPException
 from fastapi.responses import HTMLResponse
@@ -62,6 +63,7 @@ def init_db():
         delivered INTEGER,
         bounced INTEGER,
         last_error TEXT,
+        opens INTEGER DEFAULT 0,
         created_at TIMESTAMPTZ DEFAULT NOW()
     )
     """)
@@ -305,7 +307,9 @@ def run_campaign(campaign_id):
 
                 try:
 
-                    html = render_template(camp["html_body"], contact)
+                    tracking_pixel = f'<img src="https://YOUR-RAILWAY-URL/open/{campaign_id}/{contact["email"]}" width="1" height="1"/>'
+
+                    html = render_template(camp["html_body"], contact) + tracking_pixel
 
                     msg = MIMEMultipart()
                     msg["Subject"] = camp["subject"]
@@ -518,6 +522,24 @@ def delete_campaign(campaign_id: str, current_user: str = Depends(get_current_us
 
     return {"message": "Campaign deleted"}
 
+@app.get("/open/{campaign_id}/{email}")
+def track_open(campaign_id: str, email: str):
+
+    conn = get_conn()
+    cur = conn.cursor()
+
+    cur.execute("""
+    UPDATE campaigns
+    SET opens = opens + 1
+    WHERE campaign_id=%s
+    """,(campaign_id,))
+
+    conn.commit()
+    conn.close()
+
+    pixel = b'\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x00\x00\x00\x21\xf9\x04\x01\x00\x00\x00\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3b'
+
+    return Response(content=pixel, media_type="image/gif")
 
 # ========= ROOT =========
 @app.get("/", response_class=HTMLResponse)
