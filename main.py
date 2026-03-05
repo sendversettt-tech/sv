@@ -33,8 +33,6 @@ CAMPAIGNS: Dict[str, Dict[str, Any]] = {}
 _campaign_counter = 0
 _campaign_lock = threading.Lock()
 
-print("ENV DATABASE_URL:", os.environ.get("DATABASE_URL"))
-
 @app.on_event("startup")
 def init_db():
 
