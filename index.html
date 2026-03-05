@@ -545,6 +545,7 @@
                     <th>Name</th>
                     <th>Host</th>
                     <th>From email</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody id="smtp_table_body">
@@ -676,6 +677,7 @@
                     <th>Total</th>
                     <th>Delivered</th>
                     <th>Failed</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody id="campaigns_table_body">
@@ -910,6 +912,11 @@
             <td>${p.name || "(no name)"}</td>
             <td>${p.host}</td>
             <td>${p.from_email}</td>
+            <td>
+              <button class="btn btn-ghost" onclick="deleteSmtp(${p.id}); event.stopPropagation();">
+                Delete
+              </button>
+            </td>
           `;
           tr.addEventListener("click", () => {
             document.getElementById("smtp_profile_name").value = p.name || "";
@@ -995,6 +1002,11 @@
             <td>${c.total}</td>
             <td>${c.delivered}</td>
             <td>${c.bounced}</td>
+            <td>
+              <button class="btn btn-ghost" onclick="deleteCampaign('${c.campaign_id}'); event.stopPropagation();">
+                Delete
+              </button>
+            </td>
           `;
           tr.addEventListener("click", () => {
             document.getElementById("active_campaign_id").value = c.campaign_id;
@@ -1146,6 +1158,30 @@
       }
     });
 
+    async function deleteSmtp(id){
+
+  if(!confirm("Delete this SMTP profile?")) return;
+
+  await fetch("/smtp_profiles/" + id, {
+    method: "DELETE",
+    headers: { "Authorization": AUTH_HEADER }
+  });
+
+  loadSmtpProfiles();
+}
+
+async function deleteCampaign(id){
+
+  if(!confirm("Delete this campaign?")) return;
+
+  await fetch("/campaigns/" + id, {
+    method: "DELETE",
+    headers: { "Authorization": AUTH_HEADER }
+  });
+
+  loadCampaignsTable();
+}
+    
     // ====== AUTO-LOGIN ON PAGE LOAD ======
     window.addEventListener("load", () => {
       tryAutoLogin();
