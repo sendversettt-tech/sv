@@ -553,3 +553,4 @@ def root():
     except FileNotFoundError:
 
         return HTMLResponse("<h1>SendVerse backend running</h1>", status_code=200)
+        
