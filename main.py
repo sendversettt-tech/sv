@@ -92,21 +92,47 @@ def parse_contacts_file(file_bytes: bytes, filename: str) -> List[Dict[str, str]
     return contacts
 
 # ========= SMTP SEND =========
-def send_email_smtp(host, port, username, password, use_tls, from_email, to_email, subject, html):
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
 
-    msg = MIMEText(html, "html")
+
+def send_email_smtp(
+    host,
+    port,
+    username,
+    password,
+    use_tls,
+    from_email,
+    to_email,
+    subject,
+    html,
+    attachment_bytes=None,
+    attachment_name=None
+):
+
+    msg = MIMEMultipart()
     msg["Subject"] = subject
     msg["From"] = from_email
     msg["To"] = to_email
 
-    with smtplib.SMTP(host, port, timeout=30) as server:
+    msg.attach(MIMEText(html, "html"))
 
+    if attachment_bytes:
+        part = MIMEBase("application", "octet-stream")
+        part.set_payload(attachment_bytes)
+        encoders.encode_base64(part)
+        part.add_header(
+            "Content-Disposition",
+            f'attachment; filename="{attachment_name}"'
+        )
+        msg.attach(part)
+
+    with smtplib.SMTP(host, port, timeout=30) as server:
         if use_tls:
             server.starttls()
-
         if username and password:
             server.login(username, password)
-
         server.sendmail(from_email, [to_email], msg.as_string())
 
 
@@ -238,7 +264,9 @@ def run_campaign(campaign_id):
                 camp["from_email"],
                 contact["email"],
                 camp["subject"],
-                html
+                html,
+                camp.get("attachment_bytes"),
+                camp.get("attachment_name")
             )
 
             camp["sent"] += 1
@@ -275,10 +303,17 @@ async def start_campaign(
     from_email: str = Form(...),
     speed_per_minute: int = Form(60),
     contacts_file: UploadFile = File(...),
+    attachment_file: UploadFile = File(None),
     current_user: str = Depends(get_current_user),
 ):
 
     file_bytes = await contacts_file.read()
+    attachment_bytes = None
+    attachment_name = None
+
+    if attachment_file:
+        attachment_bytes = await attachment_file.read()
+        attachment_name = attachment_file.filename
 
     contacts = parse_contacts_file(file_bytes, contacts_file.filename)
 
@@ -307,6 +342,8 @@ async def start_campaign(
         "delivered": 0,
         "bounced": 0,
         "last_error": None,
+        "attachment_bytes": attachment_bytes,
+        "attachment_name": attachment_name,
         "created_at": time.time(),
         "total": len(contacts)
     }
