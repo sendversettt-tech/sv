@@ -377,6 +377,38 @@ def list_campaigns(current_user: str = Depends(get_current_user)):
 
     return result
 
+@app.delete("/smtp_profiles/{profile_id}")
+def delete_smtp_profile(profile_id: int, current_user: str = Depends(get_current_user)):
+
+    data = load_json(SMTP_FILE)
+
+    profiles = data.get(current_user, [])
+
+    new_profiles = [p for p in profiles if p["id"] != profile_id]
+
+    data[current_user] = new_profiles
+
+    save_json(SMTP_FILE, data)
+
+    return {"message": "SMTP profile deleted"}
+
+@app.delete("/campaigns/{campaign_id}")
+def delete_campaign(campaign_id: str, current_user: str = Depends(get_current_user)):
+
+    data = load_json(CAMPAIGNS_FILE)
+
+    camp = data.get(campaign_id)
+
+    if not camp or camp["username"] != current_user:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+
+    del data[campaign_id]
+
+    save_json(CAMPAIGNS_FILE, data)
+
+    return {"message": "Campaign deleted"}
+
+
 # ========= ROOT =========
 @app.get("/", response_class=HTMLResponse)
 def root():
