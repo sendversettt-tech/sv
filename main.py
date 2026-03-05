@@ -1,64 +1,91 @@
 import os
 import csv
 import io
-import json
 import threading
 import time
 from typing import Dict, Any, List
-from pathlib import Path
 
 from fastapi import FastAPI, UploadFile, File, Form, Depends, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from email.mime.text import MIMEText
 import smtplib
+import psycopg2
+import psycopg2.extras
 
+DATABASE_URL = os.getenv("DATABASE_URL")
+def get_conn():
+    if not DATABASE_URL:
+        raise HTTPException(status_code=500, detail="DATABASE_URL not configured")
+    return psycopg2.connect(DATABASE_URL, sslmode="require")
 app = FastAPI()
 security = HTTPBasic()
 
-# ========= FILE PATHS =========
-USERS_FILE = "users.json"
-SMTP_FILE = "smtp_profiles.json"
-CAMPAIGNS_FILE = "campaigns.json"
 
-file_lock = threading.Lock()
-
-# ========= JSON HELPERS =========
-def load_json(file):
-    if not Path(file).exists():
-        return {}
-    with open(file, "r") as f:
-        try:
-            return json.load(f)
-        except:
-            return {}
-
-def save_json(file, data):
-    with file_lock:
-        with open(file, "w") as f:
-            json.dump(data, f, indent=2)
-
-# ========= USERS =========
-def get_users():
-    return load_json(USERS_FILE)
 
 # ========= IN-MEMORY CAMPAIGNS =========
 CAMPAIGNS: Dict[str, Dict[str, Any]] = {}
 _campaign_counter = 0
 _campaign_lock = threading.Lock()
 
+@app.on_event("startup")
+def init_db():
+
+    conn = get_conn()
+    cur = conn.cursor()
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS smtp_profiles (
+        id SERIAL PRIMARY KEY,
+        username TEXT NOT NULL,
+        name TEXT,
+        host TEXT,
+        port INTEGER,
+        use_tls BOOLEAN,
+        smtp_username TEXT,
+        smtp_password TEXT,
+        from_email TEXT,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+    )
+    """)
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS campaigns (
+        campaign_id TEXT PRIMARY KEY,
+        username TEXT,
+        subject TEXT,
+        status TEXT,
+        total INTEGER,
+        processed INTEGER,
+        sent INTEGER,
+        failed INTEGER,
+        delivered INTEGER,
+        bounced INTEGER,
+        last_error TEXT,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+    )
+    """)
+
+    conn.commit()
+    conn.close()
+
 # ========= AUTH =========
+# ========= MANUAL USERS =========
+USERS = {
+    "user1": "pass1",
+    "user2": "pass2"
+}
+
 def get_current_user(credentials: HTTPBasicCredentials = Depends(security)):
-    users = get_users()
     username = credentials.username
     password = credentials.password
-    real_pass = users.get(username)
+
+    real_pass = USERS.get(username)
 
     if real_pass is None or real_pass != password:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     return username
-
 
 @app.get("/me")
 def me(current_user: str = Depends(get_current_user)):
@@ -156,78 +183,94 @@ def create_smtp_profile(
     current_user: str = Depends(get_current_user),
 ):
 
-    data = load_json(SMTP_FILE)
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-    user_profiles = data.get(current_user, [])
+    cur.execute("""
+    INSERT INTO smtp_profiles
+    (username,name,host,port,use_tls,smtp_username,smtp_password,from_email)
+    VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+    RETURNING *
+    """,(
+        current_user,
+        name,
+        host,
+        port,
+        use_tls,
+        smtp_username,
+        smtp_password,
+        from_email
+    ))
 
-    new_id = len(user_profiles) + 1
+    row = cur.fetchone()
 
-    profile = {
-        "id": new_id,
-        "name": name,
-        "host": host,
-        "port": port,
-        "use_tls": use_tls,
-        "smtp_username": smtp_username,
-        "smtp_password": smtp_password,
-        "from_email": from_email,
-        "created_at": time.time()
-    }
+    conn.commit()
+    conn.close()
 
-    user_profiles.append(profile)
-    data[current_user] = user_profiles
-
-    save_json(SMTP_FILE, data)
-
-    return profile
+    return row
 
 
 @app.get("/smtp_profiles")
 def list_smtp_profiles(current_user: str = Depends(get_current_user)):
 
-    data = load_json(SMTP_FILE)
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-    return data.get(current_user, [])
+    cur.execute("""
+    SELECT * FROM smtp_profiles
+    WHERE username=%s
+    ORDER BY created_at DESC
+    """,(current_user,))
 
-# ========= CAMPAIGN JSON STORAGE =========
+    rows = cur.fetchall()
+
+    conn.close()
+
+    return rows
+
+
 def create_campaign_record(campaign_id, username, subject, total):
 
-    data = load_json(CAMPAIGNS_FILE)
+    conn = get_conn()
+    cur = conn.cursor()
 
-    data[campaign_id] = {
-        "campaign_id": campaign_id,
-        "username": username,
-        "subject": subject,
-        "status": "queued",
-        "total": total,
-        "processed": 0,
-        "sent": 0,
-        "failed": 0,
-        "delivered": 0,
-        "bounced": 0,
-        "last_error": None,
-        "created_at": time.time()
-    }
+    cur.execute("""
+    INSERT INTO campaigns
+    (campaign_id,username,subject,status,total,processed,sent,failed,delivered,bounced,last_error)
+    VALUES (%s,%s,%s,'queued',%s,0,0,0,0,0,NULL)
+    """,(campaign_id,username,subject,total))
 
-    save_json(CAMPAIGNS_FILE, data)
-
+    conn.commit()
+    conn.close()
 
 def update_campaign_record(campaign_id, camp):
 
-    data = load_json(CAMPAIGNS_FILE)
+    conn = get_conn()
+    cur = conn.cursor()
 
-    if campaign_id not in data:
-        return
+    cur.execute("""
+    UPDATE campaigns
+    SET status=%s,
+        processed=%s,
+        sent=%s,
+        failed=%s,
+        delivered=%s,
+        bounced=%s,
+        last_error=%s
+    WHERE campaign_id=%s
+    """,(
+        camp["status"],
+        camp["processed"],
+        camp["sent"],
+        camp["failed"],
+        camp["delivered"],
+        camp["bounced"],
+        camp["last_error"],
+        campaign_id
+    ))
 
-    data[campaign_id]["status"] = camp["status"]
-    data[campaign_id]["processed"] = camp["processed"]
-    data[campaign_id]["sent"] = camp["sent"]
-    data[campaign_id]["failed"] = camp["failed"]
-    data[campaign_id]["delivered"] = camp["delivered"]
-    data[campaign_id]["bounced"] = camp["bounced"]
-    data[campaign_id]["last_error"] = camp["last_error"]
-
-    save_json(CAMPAIGNS_FILE, data)
+    conn.commit()
+    conn.close()
 
 # ========= CAMPAIGN WORKER =========
 def run_campaign(campaign_id):
@@ -363,15 +406,22 @@ async def start_campaign(
 @app.get("/campaign_status/{campaign_id}")
 def campaign_status(campaign_id: str, current_user: str = Depends(get_current_user)):
 
-    data = load_json(CAMPAIGNS_FILE)
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-    camp = data.get(campaign_id)
+    cur.execute("""
+    SELECT * FROM campaigns
+    WHERE campaign_id=%s AND username=%s
+    """,(campaign_id,current_user))
 
-    if not camp or camp["username"] != current_user:
+    row = cur.fetchone()
+
+    conn.close()
+
+    if not row:
         raise HTTPException(status_code=404, detail="Campaign not found")
 
-    return camp
-
+    return row
 # ========= STOP =========
 @app.post("/stop_campaign/{campaign_id}")
 def stop_campaign(campaign_id: str, current_user: str = Depends(get_current_user)):
@@ -381,67 +431,70 @@ def stop_campaign(campaign_id: str, current_user: str = Depends(get_current_user
     if camp and camp["user"] == current_user:
 
         camp["status"] = "stopped"
-
         update_campaign_record(campaign_id, camp)
 
     else:
 
-        data = load_json(CAMPAIGNS_FILE)
+        conn = get_conn()
+        cur = conn.cursor()
 
-        if campaign_id in data and data[campaign_id]["username"] == current_user:
+        cur.execute("""
+        UPDATE campaigns
+        SET status='stopped'
+        WHERE campaign_id=%s AND username=%s
+        """,(campaign_id,current_user))
 
-            data[campaign_id]["status"] = "stopped"
-
-            save_json(CAMPAIGNS_FILE, data)
+        conn.commit()
+        conn.close()
 
     return {"message": "Campaign stop requested", "campaign_id": campaign_id}
-
 # ========= LIST CAMPAIGNS =========
 @app.get("/campaigns")
 def list_campaigns(current_user: str = Depends(get_current_user)):
 
-    data = load_json(CAMPAIGNS_FILE)
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-    result = []
+    cur.execute("""
+    SELECT * FROM campaigns
+    WHERE username=%s
+    ORDER BY created_at DESC
+    """,(current_user,))
 
-    for c in data.values():
+    rows = cur.fetchall()
 
-        if c["username"] == current_user:
+    conn.close()
 
-            result.append(c)
-
-    result.sort(key=lambda x: x.get("created_at", 0), reverse=True)
-
-    return result
-
+    return rows
 @app.delete("/smtp_profiles/{profile_id}")
 def delete_smtp_profile(profile_id: int, current_user: str = Depends(get_current_user)):
 
-    data = load_json(SMTP_FILE)
+    conn = get_conn()
+    cur = conn.cursor()
 
-    profiles = data.get(current_user, [])
+    cur.execute("""
+    DELETE FROM smtp_profiles
+    WHERE id=%s AND username=%s
+    """,(profile_id,current_user))
 
-    new_profiles = [p for p in profiles if p["id"] != profile_id]
-
-    data[current_user] = new_profiles
-
-    save_json(SMTP_FILE, data)
+    conn.commit()
+    conn.close()
 
     return {"message": "SMTP profile deleted"}
 
 @app.delete("/campaigns/{campaign_id}")
 def delete_campaign(campaign_id: str, current_user: str = Depends(get_current_user)):
 
-    data = load_json(CAMPAIGNS_FILE)
+    conn = get_conn()
+    cur = conn.cursor()
 
-    camp = data.get(campaign_id)
+    cur.execute("""
+    DELETE FROM campaigns
+    WHERE campaign_id=%s AND username=%s
+    """,(campaign_id,current_user))
 
-    if not camp or camp["username"] != current_user:
-        raise HTTPException(status_code=404, detail="Campaign not found")
-
-    del data[campaign_id]
-
-    save_json(CAMPAIGNS_FILE, data)
+    conn.commit()
+    conn.close()
 
     return {"message": "Campaign deleted"}
 
