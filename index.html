@@ -640,18 +640,27 @@
                   <div class="stat-label">Total</div>
                   <div class="stat-value" id="stat_total">0</div>
                 </div>
+
                 <div class="stat-card">
                   <div class="stat-label">Processed</div>
                   <div class="stat-value" id="stat_processed">0</div>
                 </div>
+
                 <div class="stat-card">
-                  <div class="stat-label">Delivered</div>
-                  <div class="stat-value stat-good" id="stat_delivered">0</div>
+                 <div class="stat-label">Delivered</div>
+                 <div class="stat-value stat-good" id="stat_delivered">0</div>
                 </div>
-                <div class="stat-card">
-                  <div class="stat-label">Bounced / failed</div>
-                  <div class="stat-value stat-bad" id="stat_bounced">0</div>
-                </div>
+
+              <div class="stat-card">
+                <div class="stat-label">Opened</div>
+                <div class="stat-value stat-good" id="stat_opened">0</div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-label">Bounced / failed</div>
+                <div class="stat-value stat-bad" id="stat_bounced">0</div>
+              </div>
+            </div>   
               </div>
 
               <div style="margin-top:8px; display:flex; gap:8px;">
@@ -1095,6 +1104,7 @@
         document.getElementById("stat_total").textContent = data.total_contacts;
         document.getElementById("stat_processed").textContent = "0";
         document.getElementById("stat_delivered").textContent = "0";
+        document.getElementById("stat_opened").textContent = "0";
         document.getElementById("stat_bounced").textContent = "0";
 
         loadCampaignsTable();
@@ -1124,10 +1134,12 @@
         document.getElementById("stat_total").textContent = data.total;
         document.getElementById("stat_processed").textContent = data.processed;
         document.getElementById("stat_delivered").textContent = data.delivered;
+        document.getElementById("stat_opened").textContent = data.opens || 0;
         document.getElementById("stat_bounced").textContent = data.bounced;
         const line = "Status: " + data.status +
                      " | Processed: " + data.processed + "/" + data.total +
                      " | Delivered: " + data.delivered +
+                     " | Opened: " + (data.opens || 0) +
                      " | Bounced/Failed: " + data.bounced +
                      (data.last_error ? " | Last error: " + data.last_error : "");
         logLine(line);
