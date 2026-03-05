@@ -19,6 +19,7 @@ def get_conn():
     database_url = os.environ.get("DATABASE_URL")
 
     if not database_url:
+        print("ERROR: DATABASE_URL environment variable missing")
         raise Exception("DATABASE_URL not configured")
 
     return psycopg2.connect(database_url, sslmode="require")
@@ -31,6 +32,8 @@ security = HTTPBasic()
 CAMPAIGNS: Dict[str, Dict[str, Any]] = {}
 _campaign_counter = 0
 _campaign_lock = threading.Lock()
+
+print("ENV DATABASE_URL:", os.environ.get("DATABASE_URL"))
 
 @app.on_event("startup")
 def init_db():
