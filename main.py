@@ -79,7 +79,7 @@ def init_db():
 # ========= MANUAL USERS =========
 USERS = {
     "user1": "pass1",
-    "user2": "pass2"
+    "null1": "null1"
 }
 
 def get_current_user(credentials: HTTPBasicCredentials = Depends(security)):
