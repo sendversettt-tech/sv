@@ -11,6 +11,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from email.mime.text import MIMEText
 import smtplib
+import ssl
 import psycopg2
 import psycopg2.extras
 import logging
@@ -323,7 +324,7 @@ def run_campaign(campaign_id):
 
                 try:
 
-                    tracking_pixel = f'<img src="https://YOUR-RAILWAY-URL/open/{campaign_id}/{contact["email"]}" width="1" height="1"/>'
+                    tracking_pixel = f'<img src="https://www.sendverse.world/open/{campaign_id}/{contact["email"]}" width="1" height="1"/>'
 
                     html = render_template(camp["html_body"], contact) + tracking_pixel
 
