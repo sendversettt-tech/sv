@@ -13,7 +13,9 @@ from email.mime.text import MIMEText
 import smtplib
 import psycopg2
 import psycopg2.extras
-
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def get_conn():
     database_url = os.environ.get("DATABASE_URL")
@@ -161,9 +163,14 @@ def send_email_smtp(
         )
         msg.attach(part)
 
+    # Create unverified SSL context (FIX FOR IP-BASED SMTP)
+    context = ssl.create_default_context()
+    context.check_hostname = False
+    context.verify_mode = ssl.CERT_NONE
+
     with smtplib.SMTP(host, port, timeout=60) as server:
         if use_tls:
-            server.starttls()
+            server.starttls(context=context)
         if username and password:
             server.login(username, password)
         server.sendmail(from_email, [to_email], msg.as_string())
@@ -296,10 +303,15 @@ def run_campaign(campaign_id):
 
     try:
 
+        # Create unverified SSL context (FIX FOR IP-BASED SMTP)
+        context = ssl.create_default_context()
+        context.check_hostname = False
+        context.verify_mode = ssl.CERT_NONE
+
         with smtplib.SMTP(camp["smtp_host"], camp["smtp_port"], timeout=60) as server:
 
             if camp["smtp_use_tls"]:
-                server.starttls()
+                server.starttls(context=context)
 
             if camp["smtp_username"] and camp["smtp_password"]:
                 server.login(camp["smtp_username"], camp["smtp_password"])
@@ -346,6 +358,7 @@ def run_campaign(campaign_id):
                     camp["failed"] += 1
                     camp["bounced"] += 1
                     camp["last_error"] = str(e)
+                    print(f"Error sending to {contact['email']}: {e}")
 
                 camp["processed"] += 1
                 update_campaign_record(campaign_id, camp)
@@ -355,12 +368,12 @@ def run_campaign(campaign_id):
 
     except Exception as e:
         camp["last_error"] = str(e)
+        print(f"Campaign error: {e}")
 
     if camp["status"] != "stopped":
         camp["status"] = "finished"
 
     update_campaign_record(campaign_id, camp)
-
 # ========= START CAMPAIGN =========
 @app.post("/start_campaign")
 async def start_campaign(
